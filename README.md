@@ -1,0 +1,2 @@
+# AndroidStarter
+Android starter project.
