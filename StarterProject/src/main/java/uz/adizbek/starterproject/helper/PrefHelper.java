@@ -1,4 +1,4 @@
-package com.github.adizbek.starter.helper;
+package uz.adizbek.starterproject.helper;
 
 import android.content.Context;
 import android.content.SharedPreferences;

@@ -1,4 +1,4 @@
-package com.github.adizbek.starter.api;
+package uz.adizbek.starterproject.api;
 
 /**
  * Created by adizbek on 1/14/18.

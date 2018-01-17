@@ -1,6 +1,6 @@
-package com.github.adizbek.starter.helper;
+package uz.adizbek.starterproject.helper;
 
-import com.github.adizbek.starter.Application;
+import uz.adizbek.starterproject.Application;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 /**

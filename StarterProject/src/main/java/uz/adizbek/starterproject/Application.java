@@ -1,10 +1,10 @@
-package com.github.adizbek.starter;
+package uz.adizbek.starterproject;
 
 import android.support.multidex.MultiDexApplication;
 
 import com.blankj.utilcode.util.Utils;
-import com.github.adizbek.starter.api.ApiService;
-import com.github.adizbek.starter.helper.PrefHelper;
+import uz.adizbek.starterproject.api.ApiService;
+import uz.adizbek.starterproject.helper.PrefHelper;
 import com.google.firebase.FirebaseApp;
 import com.squareup.picasso.Picasso;
 
