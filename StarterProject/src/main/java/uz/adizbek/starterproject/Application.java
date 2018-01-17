@@ -16,9 +16,9 @@ import retrofit2.Retrofit;
 
 public class Application extends MultiDexApplication {
     public static PrefHelper prefs;
-    ApiService api;
-    String apiHost = "https://api.github.com/";
-    Picasso pic;
+    public static ApiService api;
+    public static String apiHost = "https://api.github.com/";
+    public static Picasso pic;
 
     @Override
     public void onCreate() {
