@@ -2,7 +2,10 @@ package com.github.adizbek.starter;
 
 import android.support.multidex.MultiDexApplication;
 
+import com.blankj.utilcode.util.Utils;
 import com.github.adizbek.starter.api.ApiService;
+import com.github.adizbek.starter.helper.PrefHelper;
+import com.google.firebase.FirebaseApp;
 import com.squareup.picasso.Picasso;
 
 import retrofit2.Retrofit;
@@ -12,6 +15,7 @@ import retrofit2.Retrofit;
  */
 
 public class Application extends MultiDexApplication {
+    public static PrefHelper prefs;
     ApiService api;
     String apiHost = "https://api.github.com/";
     Picasso pic;
@@ -20,15 +24,26 @@ public class Application extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
 
+        init();
+        initFirebase();
         initRetro();
         initPicasso();
     }
 
-    private void initPicasso() {
+    protected void initFirebase() {
+        FirebaseApp.initializeApp(this);
+    }
+
+    protected void init() {
+        Utils.init(this);
+        prefs = PrefHelper.init(this);
+    }
+
+    protected void initPicasso() {
         pic = Picasso.with(this);
     }
 
-    private void initRetro() {
+    protected void initRetro() {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(this.apiHost)
                 .build();
