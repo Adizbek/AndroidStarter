@@ -49,7 +49,11 @@ public class LoginHelper {
     }
 
     public static void saveUserId(String id) {
-        Application.prefs.saveInt(USER_ID, Integer.parseInt(id));
+        saveUserId(Integer.parseInt(id));
+    }
+
+    public static void saveUserId(int id){
+        Application.prefs.saveInt(USER_ID, id);
     }
 
 
