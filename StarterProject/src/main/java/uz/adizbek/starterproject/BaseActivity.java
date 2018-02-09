@@ -14,7 +14,10 @@ import android.support.v7.app.AppCompatActivity;
 public class BaseActivity extends AppCompatActivity {
     public FragmentManager manager;
 
-    public static int FRAME;
+
+    public int getFrame() {
+        return 0;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -32,7 +35,7 @@ public class BaseActivity extends AppCompatActivity {
 
         t.setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out, R.anim.slide_left_in, R.anim.slide_right_out);
         t
-                .replace(FRAME, fragment)
+                .replace(getFrame(), fragment)
                 .commit();
 
     }
@@ -52,7 +55,7 @@ public class BaseActivity extends AppCompatActivity {
         t.setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out, R.anim.slide_left_in, R.anim.slide_right_out);
 
         t
-                .replace(FRAME, f, tag)
+                .replace(getFrame(), f, tag)
                 .addToBackStack(backstack)
                 .commit();
     }
