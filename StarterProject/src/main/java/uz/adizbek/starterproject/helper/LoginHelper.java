@@ -1,6 +1,7 @@
 package uz.adizbek.starterproject.helper;
 
 import uz.adizbek.starterproject.Application;
+
 import com.google.firebase.iid.FirebaseInstanceId;
 
 /**
@@ -21,7 +22,7 @@ public class LoginHelper {
     }
 
     public static String getToken() {
-        return Application.prefs.readString(TOKEN, null);
+        return Application.prefs.readString(TOKEN, "");
     }
 
     public static void saveFirebaseToken(String token) {
@@ -52,7 +53,7 @@ public class LoginHelper {
         saveUserId(Integer.parseInt(id));
     }
 
-    public static void saveUserId(int id){
+    public static void saveUserId(int id) {
         Application.prefs.saveInt(USER_ID, id);
     }
 
