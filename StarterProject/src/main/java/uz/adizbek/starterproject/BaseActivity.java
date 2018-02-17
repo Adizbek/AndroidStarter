@@ -1,11 +1,13 @@
 package uz.adizbek.starterproject;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 
 /**
  * Created by adizbek on 2/9/18.
@@ -24,6 +26,23 @@ public class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         manager = getSupportFragmentManager();
+    }
+
+    public static void setToolbar(Activity activity, String title, boolean upEnabled, boolean showHome, boolean customView, View view) {
+        if (activity instanceof AppCompatActivity) {
+            ((AppCompatActivity) activity).getSupportActionBar().setHomeButtonEnabled(showHome);
+            ((AppCompatActivity) activity).getSupportActionBar().setDisplayHomeAsUpEnabled(upEnabled);
+
+
+            ((AppCompatActivity) activity).getSupportActionBar().setDisplayShowCustomEnabled(customView);
+            ((AppCompatActivity) activity).getSupportActionBar().setCustomView(customView ? view : null);
+
+            ((AppCompatActivity) activity).getSupportActionBar().setTitle(title);
+        }
+    }
+
+    public static void setToolbar(Activity activity, String title, boolean upEnabled, boolean showHome) {
+        setToolbar(activity, title, upEnabled, showHome, false, null);
     }
 
     public void addFragmentToStack(Fragment fragment) {
