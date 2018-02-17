@@ -57,7 +57,7 @@ public class ImageViewerFragment extends Fragment {
             creator = Application.pic.load(uri);
         }
 
-        if (creator == null) return;
+        if (creator == null && type != ImageSource.BITMAP) return;
 
         RequestCreator finalCreator = creator;
 
