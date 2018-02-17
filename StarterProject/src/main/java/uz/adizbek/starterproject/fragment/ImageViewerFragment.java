@@ -1,26 +1,26 @@
 package uz.adizbek.starterproject.fragment;
 
-import android.app.Dialog;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.RelativeLayout;
 
 import com.github.chrisbanes.photoview.PhotoView;
 import com.squareup.picasso.RequestCreator;
 
+import java.io.File;
 import java.io.IOException;
 
 import uz.adizbek.starterproject.Application;
 import uz.adizbek.starterproject.BaseActivity;
 import uz.adizbek.starterproject.R;
-import uz.adizbek.starterproject.helper.Helper;
 
 
 /**
@@ -31,25 +31,46 @@ public class ImageViewerFragment extends Fragment {
 
     private String url;
     private RelativeLayout root;
+    private ImageSource type;
+
+    @DrawableRes
+    private int drawable;
+
+    private Bitmap bitmap;
+    private File file;
+    private Uri uri;
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        RequestCreator creator = Application
-                .pic
-                .load(url);
+        RequestCreator creator = null;
+        if (type == ImageSource.URL) {
+            creator = Application
+                    .pic
+                    .load(url);
+        } else if (type == ImageSource.DRAWABLE) {
+            creator = Application.pic.load(drawable);
+        } else if (type == ImageSource.FILE) {
+            creator = Application.pic.load(file);
+        } else if (type == ImageSource.URI) {
+            creator = Application.pic.load(uri);
+        }
 
+        if (creator == null) return;
+
+        RequestCreator finalCreator = creator;
 
         new Thread(() -> {
             try {
-                Bitmap bitmap = creator.get();
+                Bitmap src = (type == ImageSource.BITMAP) ? bitmap : finalCreator.get();
 
-                float dt = 600 / bitmap.getWidth();
-                int height = (int) (bitmap.getHeight() * dt);
+
+                float dt = 600 / src.getWidth();
+                int height = (int) (src.getHeight() * dt);
 
                 getActivity()
-                        .runOnUiThread(() -> creator.resize(1000, (int) (height * dt))
+                        .runOnUiThread(() -> finalCreator.resize(1000, (int) (height * dt))
                                 .onlyScaleDown()
                                 .into((PhotoView) root.findViewById(R.id.photo)));
             } catch (IOException e) {
@@ -81,9 +102,44 @@ public class ImageViewerFragment extends Fragment {
 
     public Fragment withUrl(String url) {
         this.url = url;
+        type = ImageSource.URL;
 
         return this;
     }
 
+
+    public Fragment withDrawable(@DrawableRes int draw) {
+        drawable = draw;
+        type = ImageSource.DRAWABLE;
+
+        return this;
+    }
+
+    public Fragment withBitmap(Bitmap draw) {
+        bitmap = draw;
+        type = ImageSource.BITMAP;
+
+        return this;
+    }
+
+
+    public Fragment withFile(File f) {
+        file = f;
+        type = ImageSource.FILE;
+
+        return this;
+    }
+
+    public Fragment withUri(Uri f) {
+        uri = f;
+        type = ImageSource.URL;
+
+        return this;
+    }
+
+
+    enum ImageSource {
+        URL, DRAWABLE, BITMAP, FILE, URI
+    }
 
 }

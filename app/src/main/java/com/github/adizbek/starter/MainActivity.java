@@ -18,7 +18,7 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        changeFragment(new ImageViewerFragment().withUrl("https://4pda.uz/uploads/fotos/screen/23-10-17/7ab450fa46dc10caf2c60caa93b83fb5.jpg"));
+        changeFragment(new ImageViewerFragment().withDrawable(R.drawable.ic_perm_scan_wifi_red_700_24dp));
     }
 
 
