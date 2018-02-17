@@ -1,5 +1,6 @@
 package uz.adizbek.starterproject;
 
+import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 
 import com.blankj.utilcode.util.Utils;
@@ -20,9 +21,15 @@ public class Application extends MultiDexApplication {
     public static String apiHost = "https://api.github.com/";
     public static Picasso pic;
 
+    public static String getHost() {
+        return apiHost;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
+
+        MultiDex.install(this);
 
         init();
         initFirebase();
