@@ -20,6 +20,7 @@ import java.io.IOException;
 
 import uz.adizbek.starterproject.Application;
 import uz.adizbek.starterproject.BaseActivity;
+import uz.adizbek.starterproject.BaseFragment;
 import uz.adizbek.starterproject.R;
 
 
@@ -27,7 +28,7 @@ import uz.adizbek.starterproject.R;
  * Created by adizbek on 11/17/17.
  */
 
-public class ImageViewerFragment extends Fragment {
+public class ImageViewerFragment extends BaseFragment {
 
     private String url;
     private RelativeLayout root;
@@ -83,9 +84,7 @@ public class ImageViewerFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        if (getActivity() instanceof BaseActivity) {
-            ((BaseActivity) getActivity()).getSupportActionBar().hide();
-        }
+        activity.getSupportActionBar().hide();
 
         root = (RelativeLayout) inflater.inflate(R.layout.fragment_image_viewer, null);
         return root;
@@ -93,9 +92,7 @@ public class ImageViewerFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
-        if (getActivity() instanceof BaseActivity) {
-            ((BaseActivity) getActivity()).getSupportActionBar().show();
-        }
+        activity.getSupportActionBar().show();
 
         super.onDestroyView();
     }

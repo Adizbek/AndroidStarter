@@ -78,7 +78,11 @@ public class BaseActivity extends AppCompatActivity {
         if (replace)
             t.replace(getFrame(), f, tag);
         else {
-            t.hide(manager.getFragments().get(manager.getFragments().size() - 1));
+            int size = manager.getFragments().size();
+
+            if (size > 0)
+                t.hide(manager.getFragments().get(size - 1));
+
             t.add(getFrame(), f, tag);
         }
 
@@ -87,7 +91,9 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     public void removeFragment(Fragment f) {
-        manager.beginTransaction().remove(f).commit();
+        manager.beginTransaction()
+                .remove(f)
+                .commit();
     }
 
     public void changeFragment(Fragment fragment) {

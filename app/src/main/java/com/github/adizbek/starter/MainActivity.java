@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 
 import uz.adizbek.starterproject.BaseActivity;
+import uz.adizbek.starterproject.fragment.ImageViewerContainerFragment;
 import uz.adizbek.starterproject.fragment.ImageViewerFragment;
 
 public class MainActivity extends BaseActivity {
@@ -18,7 +19,12 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        changeFragment(new ImageViewerFragment().withDrawable(R.drawable.ic_perm_scan_wifi_red_700_24dp));
+//        addF(new ImageViewerContainerFragment()
+//                .addImages("https://4pda.uz/uploads/fotos/news/01-02-18/010218023757.jpg")
+//                .addImages("http://img.4pda.uz/go/725fec8e11fafc6f0bd0609c25a999d3"));
+
+        addFragmentToStack(new PlusOneFragment());
+        addFragmentToStack(new PlusOneFragment2());
     }
 
 
