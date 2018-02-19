@@ -78,9 +78,9 @@ public class BaseActivity extends AppCompatActivity {
         t.setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out, R.anim.slide_left_in, R.anim.slide_right_out);
 
         if (replace)
-            t.add(getFrame(), f, tag);
-        else
             t.replace(getFrame(), f, tag);
+        else
+            t.add(getFrame(), f, tag);
 
         t.addToBackStack(backstack)
                 .commit();
