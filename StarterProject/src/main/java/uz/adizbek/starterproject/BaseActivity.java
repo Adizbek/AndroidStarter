@@ -15,7 +15,7 @@ import android.view.View;
 
 public class BaseActivity extends AppCompatActivity {
     public FragmentManager manager;
-
+    public Fragment lastFragment = null;
 
     public int getFrame() {
         return 0;
@@ -78,11 +78,10 @@ public class BaseActivity extends AppCompatActivity {
         if (replace)
             t.replace(getFrame(), f, tag);
         else {
-            int size = manager.getFragments().size();
+            if (lastFragment != null)
+                t.hide(lastFragment);
 
-            if (size > 0)
-                t.hide(manager.getFragments().get(size - 1));
-
+            lastFragment = f;
             t.add(getFrame(), f, tag);
         }
 
