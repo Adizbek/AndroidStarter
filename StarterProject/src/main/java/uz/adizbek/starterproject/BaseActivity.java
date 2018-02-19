@@ -54,9 +54,8 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     public void addFragmentToStack(Fragment f, String backstack, String tag) {
-        if (tag != null && manager.findFragmentByTag(tag) != null) return;
-
-        add(false, f, backstack, tag);
+        if (tag == null || manager.findFragmentByTag(tag) == null)
+            add(true, f, backstack, tag);
     }
 
     public void replaceFragmentToStack(Fragment fragment) {
@@ -68,19 +67,20 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     public void replaceFragmentToStack(Fragment f, String backstack, String tag) {
-        if (tag != null && manager.findFragmentByTag(tag) != null) return;
-
-        add(true, f, backstack, tag);
+        if (tag == null || manager.findFragmentByTag(tag) == null)
+            add(true, f, backstack, tag);
     }
 
-    private void add(boolean replace, Fragment f, String backstack, String tag) {
+    public void add(boolean replace, Fragment f, String backstack, String tag) {
         FragmentTransaction t = manager.beginTransaction();
         t.setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out, R.anim.slide_left_in, R.anim.slide_right_out);
 
         if (replace)
             t.replace(getFrame(), f, tag);
-        else
+        else {
+            t.hide(manager.getFragments().get(manager.getFragments().size() - 1));
             t.add(getFrame(), f, tag);
+        }
 
         t.addToBackStack(backstack)
                 .commit();
