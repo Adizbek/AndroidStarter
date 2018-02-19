@@ -55,7 +55,7 @@ public class BaseActivity extends AppCompatActivity {
 
     public void addFragmentToStack(Fragment f, String backstack, String tag) {
         if (tag == null || manager.findFragmentByTag(tag) == null)
-            add(true, f, backstack, tag);
+            add(false, f, backstack, tag);
     }
 
     public void replaceFragmentToStack(Fragment fragment) {
