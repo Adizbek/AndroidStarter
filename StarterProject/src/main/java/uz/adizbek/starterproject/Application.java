@@ -1,5 +1,6 @@
 package uz.adizbek.starterproject;
 
+import android.content.Context;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 
@@ -20,6 +21,7 @@ public class Application extends MultiDexApplication {
     public static PrefHelper prefs;
     public static String apiHost = "https://api.github.com/";
     public static Picasso pic;
+    public static Context c;
 
     public static String getHost() {
         return apiHost;
@@ -30,6 +32,7 @@ public class Application extends MultiDexApplication {
         super.onCreate();
 
         MultiDex.install(this);
+        c = getApplicationContext();
 
         init();
         initFirebase();

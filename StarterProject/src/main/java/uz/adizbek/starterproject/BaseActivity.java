@@ -49,6 +49,47 @@ public class BaseActivity extends AppCompatActivity {
         addFragmentToStack(fragment, null);
     }
 
+    public void addFragmentToStack(Fragment f, String backstack) {
+        addFragmentToStack(f, backstack, null);
+    }
+
+    public void addFragmentToStack(Fragment f, String backstack, String tag) {
+        if (tag != null && manager.findFragmentByTag(tag) != null) return;
+
+        add(false, f, backstack, tag);
+    }
+
+    public void replaceFragmentToStack(Fragment fragment) {
+        addFragmentToStack(fragment, null);
+    }
+
+    public void replaceFragmentToStack(Fragment f, String backstack) {
+        addFragmentToStack(f, backstack, null);
+    }
+
+    public void replaceFragmentToStack(Fragment f, String backstack, String tag) {
+        if (tag != null && manager.findFragmentByTag(tag) != null) return;
+
+        add(true, f, backstack, tag);
+    }
+
+    private void add(boolean replace, Fragment f, String backstack, String tag) {
+        FragmentTransaction t = manager.beginTransaction();
+        t.setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out, R.anim.slide_left_in, R.anim.slide_right_out);
+
+        if (replace)
+            t.add(getFrame(), f, tag);
+        else
+            t.replace(getFrame(), f, tag);
+
+        t.addToBackStack(backstack)
+                .commit();
+    }
+
+    public void removeFragment(Fragment f) {
+        manager.beginTransaction().remove(f).commit();
+    }
+
     public void changeFragment(Fragment fragment) {
         FragmentTransaction t = manager.beginTransaction();
 
@@ -57,30 +98,6 @@ public class BaseActivity extends AppCompatActivity {
                 .replace(getFrame(), fragment)
                 .commit();
 
-    }
-
-    public void addFragmentToStack(Fragment f, String backstack) {
-        addFragmentToStack(f, backstack, null);
-    }
-
-    public void addFragmentToStack(Fragment f, String backstack, String tag) {
-        if (tag != null) {
-            Fragment tf = manager.findFragmentByTag(tag);
-
-            if (tf != null) return;
-        }
-
-        FragmentTransaction t = manager.beginTransaction();
-        t.setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out, R.anim.slide_left_in, R.anim.slide_right_out);
-
-        t
-                .replace(getFrame(), f, tag)
-                .addToBackStack(backstack)
-                .commit();
-    }
-
-    public void removeFragment(Fragment f) {
-        manager.beginTransaction().remove(f).commit();
     }
 
 }
