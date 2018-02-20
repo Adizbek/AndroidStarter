@@ -9,13 +9,17 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
+import java.util.ArrayList;
+
 /**
  * Created by adizbek on 2/9/18.
  */
 
 public class BaseActivity extends AppCompatActivity {
     public FragmentManager manager;
-    public Fragment lastFragment = null;
+    public BaseFragment lastFragment = null;
+
+    public ArrayList<BaseFragment> fragments = new ArrayList<>();
 
     public int getFrame() {
         return 0;
@@ -45,43 +49,49 @@ public class BaseActivity extends AppCompatActivity {
         setToolbar(activity, title, upEnabled, showHome, false, null);
     }
 
-    public void addFragmentToStack(Fragment fragment) {
+    public void addFragmentToStack(BaseFragment fragment) {
         addFragmentToStack(fragment, null);
     }
 
-    public void addFragmentToStack(Fragment f, String backstack) {
+    public void addFragmentToStack(BaseFragment f, String backstack) {
         addFragmentToStack(f, backstack, null);
     }
 
-    public void addFragmentToStack(Fragment f, String backstack, String tag) {
+    public void addFragmentToStack(BaseFragment f, String backstack, String tag) {
         if (tag == null || manager.findFragmentByTag(tag) == null)
             add(false, f, backstack, tag);
     }
 
-    public void replaceFragmentToStack(Fragment fragment) {
+    public void replaceFragmentToStack(BaseFragment fragment) {
         addFragmentToStack(fragment, null);
     }
 
-    public void replaceFragmentToStack(Fragment f, String backstack) {
+    public void replaceFragmentToStack(BaseFragment f, String backstack) {
         addFragmentToStack(f, backstack, null);
     }
 
-    public void replaceFragmentToStack(Fragment f, String backstack, String tag) {
+    public void replaceFragmentToStack(BaseFragment f, String backstack, String tag) {
         if (tag == null || manager.findFragmentByTag(tag) == null)
             add(true, f, backstack, tag);
     }
 
-    public void add(boolean replace, Fragment f, String backstack, String tag) {
+    // TODO last back is wrong
+    public void add(boolean replace, BaseFragment f, String backstack, String tag) {
         FragmentTransaction t = manager.beginTransaction();
         t.setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out, R.anim.slide_left_in, R.anim.slide_right_out);
 
         if (replace)
             t.replace(getFrame(), f, tag);
         else {
-            if (lastFragment != null)
-                t.hide(lastFragment);
+            if (fragments.size() > 0) {
+                BaseFragment fragment = fragments.get(fragments.size() - 1);
+                fragment.onFragmentExit();
 
-            lastFragment = f;
+                t.hide(fragment);
+            }
+
+            fragments.add(f);
+            f.onFragmentEnter();
             t.add(getFrame(), f, tag);
         }
 
@@ -89,13 +99,22 @@ public class BaseActivity extends AppCompatActivity {
                 .commit();
     }
 
-    public void removeFragment(Fragment f) {
+    public void popBackStack() {
+        if(fragments.size() > 0){
+            BaseFragment f = fragments.get(fragments.size() - 1);
+            f.onFragmentExit();
+
+            removeFragment(f);
+        }
+    }
+
+    public void removeFragment(BaseFragment f) {
         manager.beginTransaction()
                 .remove(f)
                 .commit();
     }
 
-    public void changeFragment(Fragment fragment) {
+    public void changeFragment(BaseFragment fragment) {
         FragmentTransaction t = manager.beginTransaction();
 
         t.setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out, R.anim.slide_left_in, R.anim.slide_right_out);

@@ -10,10 +10,12 @@ import android.view.ViewGroup;
 
 import com.google.android.gms.plus.PlusOneButton;
 
+import uz.adizbek.starterproject.BaseFragment;
+
 /**
  * A fragment with a Google +1 button.
  */
-public class PlusOneFragment extends Fragment {
+public class PlusOneFragment extends BaseFragment {
 
     // The request code must be 0 or greater.
     private static final int PLUS_ONE_REQUEST_CODE = 0;
