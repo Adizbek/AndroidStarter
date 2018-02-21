@@ -45,7 +45,7 @@ public class ImageViewerContainerFragment extends BaseFragment {
         pager.setAdapter(adapter);
         pager.setCurrentItem(start);
 
-        root.findViewById(R.id.btnFinish).setOnClickListener(view -> activity.removeFragment(this));
+        root.findViewById(R.id.btnFinish).setOnClickListener(view -> activity.popBackStack());
 
         return root;
     }

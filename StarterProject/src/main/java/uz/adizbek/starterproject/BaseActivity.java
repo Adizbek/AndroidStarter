@@ -3,7 +3,6 @@ package uz.adizbek.starterproject;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -20,6 +19,8 @@ public class BaseActivity extends AppCompatActivity {
     public BaseFragment lastFragment = null;
 
     public ArrayList<BaseFragment> fragments = new ArrayList<>();
+    public int backstack = 0;
+
 
     public int getFrame() {
         return 0;
@@ -36,7 +37,6 @@ public class BaseActivity extends AppCompatActivity {
         if (activity instanceof AppCompatActivity) {
             ((AppCompatActivity) activity).getSupportActionBar().setHomeButtonEnabled(showHome);
             ((AppCompatActivity) activity).getSupportActionBar().setDisplayHomeAsUpEnabled(upEnabled);
-
 
             ((AppCompatActivity) activity).getSupportActionBar().setDisplayShowCustomEnabled(customView);
             ((AppCompatActivity) activity).getSupportActionBar().setCustomView(customView ? view : null);
@@ -63,11 +63,11 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     public void replaceFragmentToStack(BaseFragment fragment) {
-        addFragmentToStack(fragment, null);
+        replaceFragmentToStack(fragment, null);
     }
 
     public void replaceFragmentToStack(BaseFragment f, String backstack) {
-        addFragmentToStack(f, backstack, null);
+        replaceFragmentToStack(f, backstack, null);
     }
 
     public void replaceFragmentToStack(BaseFragment f, String backstack, String tag) {
@@ -80,18 +80,20 @@ public class BaseActivity extends AppCompatActivity {
         FragmentTransaction t = manager.beginTransaction();
         t.setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out, R.anim.slide_left_in, R.anim.slide_right_out);
 
+
+        if (fragments.size() > 0) {
+            BaseFragment fragment = fragments.get(fragments.size() - 1);
+            fragment.onFragmentExit();
+
+            t.hide(fragment);
+        }
+
+        fragments.add(f);
+        f.onFragmentEnter();
+
         if (replace)
             t.replace(getFrame(), f, tag);
         else {
-            if (fragments.size() > 0) {
-                BaseFragment fragment = fragments.get(fragments.size() - 1);
-                fragment.onFragmentExit();
-
-                t.hide(fragment);
-            }
-
-            fragments.add(f);
-            f.onFragmentEnter();
             t.add(getFrame(), f, tag);
         }
 
@@ -99,29 +101,54 @@ public class BaseActivity extends AppCompatActivity {
                 .commit();
     }
 
-    public void popBackStack() {
-        if(fragments.size() > 0){
-            BaseFragment f = fragments.get(fragments.size() - 1);
-            f.onFragmentExit();
+    public boolean popBackStack() {
+        if (fragments.size() > 0) {
+            int index = fragments.size() - 1;
+            BaseFragment f = fragments.get(index);
 
-            removeFragment(f);
+            if (index - 1 >= 0) {
+                removeFragment(f, fragments.get(index - 1));
+            } else {
+                removeFragment(f, null);
+            }
+
+            fragments.remove(index);
+
+
+            return true;
         }
+
+        return false;
     }
 
-    public void removeFragment(BaseFragment f) {
-        manager.beginTransaction()
-                .remove(f)
+    public void removeFragment(BaseFragment remove, BaseFragment show) {
+        FragmentTransaction t = manager.beginTransaction();
+        t.setCustomAnimations(R.anim.slide_left_in, R.anim.slide_right_out);
+
+        remove.onFragmentExit();
+
+        if (show != null) {
+            t.show(show);
+            show.onFragmentEnter();
+        }
+
+        t.remove(remove)
                 .commit();
     }
 
     public void changeFragment(BaseFragment fragment) {
         FragmentTransaction t = manager.beginTransaction();
+        t.setCustomAnimations(R.anim.slide_left_out, R.anim.slide_right_in, R.anim.slide_right_out, R.anim.slide_left_in);
 
-        t.setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out, R.anim.slide_left_in, R.anim.slide_right_out);
-        t
-                .replace(getFrame(), fragment)
+        t.replace(getFrame(), fragment)
                 .commit();
 
     }
 
+    @Override
+    public void onBackPressed() {
+        if (!popBackStack()) {
+            super.onBackPressed();
+        }
+    }
 }
