@@ -1,12 +1,10 @@
 package uz.adizbek.starterproject.fragment;
 
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +17,6 @@ import java.io.File;
 import java.io.IOException;
 
 import uz.adizbek.starterproject.Application;
-import uz.adizbek.starterproject.BaseActivity;
 import uz.adizbek.starterproject.BaseFragment;
 import uz.adizbek.starterproject.R;
 
@@ -97,7 +94,7 @@ public class ImageViewerFragment extends BaseFragment {
         super.onDestroyView();
     }
 
-    public Fragment withUrl(String url) {
+    public BaseFragment withUrl(String url) {
         this.url = url;
         type = ImageSource.URL;
 
@@ -105,14 +102,14 @@ public class ImageViewerFragment extends BaseFragment {
     }
 
 
-    public Fragment withDrawable(@DrawableRes int draw) {
+    public BaseFragment withDrawable(@DrawableRes int draw) {
         drawable = draw;
         type = ImageSource.DRAWABLE;
 
         return this;
     }
 
-    public Fragment withBitmap(Bitmap draw) {
+    public BaseFragment withBitmap(Bitmap draw) {
         bitmap = draw;
         type = ImageSource.BITMAP;
 
@@ -120,14 +117,14 @@ public class ImageViewerFragment extends BaseFragment {
     }
 
 
-    public Fragment withFile(File f) {
+    public BaseFragment withFile(File f) {
         file = f;
         type = ImageSource.FILE;
 
         return this;
     }
 
-    public Fragment withUri(Uri f) {
+    public BaseFragment withUri(Uri f) {
         uri = f;
         type = ImageSource.URL;
 

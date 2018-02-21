@@ -14,7 +14,7 @@ import java.util.ArrayList;
  * Created by adizbek on 2/9/18.
  */
 
-public class BaseActivity extends AppCompatActivity {
+public class BaseActivity extends AppCompatActivity implements FragmentStackListener {
     public FragmentManager manager;
     public BaseFragment lastFragment = null;
 
@@ -89,6 +89,7 @@ public class BaseActivity extends AppCompatActivity {
         }
 
         fragments.add(f);
+        onStackChanged();
         f.onFragmentEnter();
 
         if (replace)
@@ -102,7 +103,7 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     public boolean popBackStack() {
-        if (fragments.size() > 0) {
+        if (fragments.size() > 1) {
             int index = fragments.size() - 1;
             BaseFragment f = fragments.get(index);
 
@@ -113,6 +114,7 @@ public class BaseActivity extends AppCompatActivity {
             }
 
             fragments.remove(index);
+            onStackChanged();
 
 
             return true;
@@ -147,8 +149,18 @@ public class BaseActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        if (fragments.size() == 1) {
+            finish();
+            return;
+        }
+
         if (!popBackStack()) {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    public void onStackChanged() {
+
     }
 }
