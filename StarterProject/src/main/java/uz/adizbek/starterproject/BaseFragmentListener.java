@@ -8,4 +8,13 @@ public interface BaseFragmentListener {
     void onFragmentEnter();
 
     void onFragmentExit();
+
+    void onNoResult();
+
+    void onNetworkError(int code);
+
+    void onNetworkRetry(int code);
+
+    void onNetworkRetrySuccess(int code);
+
 }

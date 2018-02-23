@@ -16,6 +16,9 @@ public class Favorite {
     private static boolean load = false;
     private static ArrayList<String> favorites;
 
+    public static String getAll() {
+        return Application.prefs.readString(key, null);
+    }
 
     public static void addFav(String string) {
         load();
@@ -48,7 +51,7 @@ public class Favorite {
 
     public static void load() {
         if (!load) {
-            String list = Application.prefs.readString(key, null);
+            String list = getAll();
 
             favorites = new ArrayList<>();
 
