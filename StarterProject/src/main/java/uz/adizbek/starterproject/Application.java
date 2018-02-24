@@ -5,13 +5,11 @@ import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 
 import com.blankj.utilcode.util.Utils;
-
-import uz.adizbek.starterproject.helper.PrefHelper;
-
 import com.google.firebase.FirebaseApp;
 import com.squareup.picasso.Picasso;
 
-import retrofit2.Retrofit;
+import uz.adizbek.starterproject.helper.Favorite;
+import uz.adizbek.starterproject.helper.PrefHelper;
 
 /**
  * Created by adizbek on 1/14/18.
@@ -47,6 +45,8 @@ public class Application extends MultiDexApplication {
     protected void init() {
         Utils.init(this);
         prefs = PrefHelper.init(this);
+
+        Favorite.load();
     }
 
     protected void initPicasso() {

@@ -16,8 +16,12 @@ public class Favorite {
     private static boolean load = false;
     private static ArrayList<String> favorites;
 
-    public static String getAll() {
+    public static String getAllFromPrefs() {
         return Application.prefs.readString(key, null);
+    }
+
+    public static String getAllCurrent() {
+        return TextUtils.join(",", favorites);
     }
 
     public static void addFav(String string) {
@@ -51,7 +55,7 @@ public class Favorite {
 
     public static void load() {
         if (!load) {
-            String list = getAll();
+            String list = getAllFromPrefs();
 
             favorites = new ArrayList<>();
 

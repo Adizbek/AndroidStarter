@@ -10,7 +10,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@id/text"
-
         android:layout_marginBottom="60dp"
         android:src="@drawable/ic_signal_cellular_connected_no_internet_0_bar_black_48dp"
         app:layout_constraintBottom_toBottomOf="@+id/text"

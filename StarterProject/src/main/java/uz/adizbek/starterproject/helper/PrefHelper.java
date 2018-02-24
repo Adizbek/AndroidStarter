@@ -25,7 +25,6 @@ public class PrefHelper {
         this.context = context;
 
         preferences = this.context.getSharedPreferences("config", Context.MODE_PRIVATE);
-
     }
 
     public void saveString(String key, String value) {

@@ -1,42 +1,43 @@
 package uz.adizbek.starterproject;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 /**
  * Created by adizbek on 2/18/18.
  */
 
-public class BaseFragment extends Fragment implements BaseFragmentListener {
+public abstract class BaseFragment extends Fragment implements BaseFragmentListener {
     public BaseActivity activity;
 
     private View errorLayout;
     private boolean errorLayoutShown = false;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
 
-        if (!(getActivity() instanceof BaseActivity))
-            Log.e("Adizbek/AndroidStarter", "Activity must extend BaseActivity");
-        else activity = (BaseActivity) getActivity();
+        this.activity = (BaseActivity) activity;
+    }
+
+    public void setTitle(String title) {
+        activity.setTitle(title);
     }
 
     @Override
     public void onFragmentEnter() {
-        showErrorLayout();
+//        showErrorLayout();
     }
 
 
     @Override
     public void onFragmentExit() {
-        hideErrorLayout();
+//        hideErrorLayout();
     }
 
 
@@ -94,7 +95,7 @@ public class BaseFragment extends Fragment implements BaseFragmentListener {
     private void removeErrorLayout() {
         if (!errorLayoutShown) return;
 
-        ((FrameLayout) activity.findViewById(activity.getFrame()))
+        getErrorContainerView()
                 .removeView(errorLayout);
 
         errorLayoutShown = false;

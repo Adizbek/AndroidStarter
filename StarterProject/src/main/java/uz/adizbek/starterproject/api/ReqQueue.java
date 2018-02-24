@@ -12,29 +12,37 @@ import retrofit2.Response;
 
 public class ReqQueue {
 
-    HashMap<Integer, BaseRequest> requests;
+    HashMap<Integer, BaseRequest> requests = new HashMap<>();
 
     public void run(ReqListener listener) {
 
         for (Integer id : requests.keySet()) {
             BaseRequest req = requests.get(id);
 
-            if (req.isFinished()) continue;
+            if (req.isFinished() || req.isExecuting()) continue;
 
-            req.request.enqueue(new Callback() {
+            req.setExecuting(true);
+
+            req.getRequest().enqueue(new Callback() {
                 @Override
                 public void onResponse(Call call, Response response) {
                     req.finished = true;
+                    req.setExecuting(false);
 
                     listener.onReqSuccess(id, response);
                 }
 
                 @Override
                 public void onFailure(Call call, Throwable t) {
+                    req.setExecuting(false);
                     listener.onReqFail(id);
                 }
             });
         }
+    }
+
+    public void addRequest(int id, Call req) {
+        requests.put(id, BaseRequest.make(req));
     }
 
     public void setRequests(HashMap<Integer, BaseRequest> req) {

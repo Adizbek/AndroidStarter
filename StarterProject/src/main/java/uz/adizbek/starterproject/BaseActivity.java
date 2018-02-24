@@ -16,10 +16,9 @@ import java.util.ArrayList;
 
 public class BaseActivity extends AppCompatActivity implements FragmentStackListener {
     public FragmentManager manager;
-    public BaseFragment lastFragment = null;
+    public BaseFragment currentFragment = null;
 
     public ArrayList<BaseFragment> fragments = new ArrayList<>();
-    public int backstack = 0;
 
 
     public int getFrame() {
@@ -31,6 +30,10 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
         super.onCreate(savedInstanceState);
 
         manager = getSupportFragmentManager();
+    }
+
+    public void setTitle(String text) {
+        getSupportActionBar().setTitle(text);
     }
 
     public static void setToolbar(Activity activity, String title, boolean upEnabled, boolean showHome, boolean customView, View view) {
@@ -58,8 +61,7 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
     }
 
     public void addFragmentToStack(BaseFragment f, String backstack, String tag) {
-        if (tag == null || manager.findFragmentByTag(tag) == null)
-            add(false, f, backstack, tag);
+        add(false, f, backstack, tag);
     }
 
     public void replaceFragmentToStack(BaseFragment fragment) {
@@ -71,12 +73,27 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
     }
 
     public void replaceFragmentToStack(BaseFragment f, String backstack, String tag) {
-        if (tag == null || manager.findFragmentByTag(tag) == null)
-            add(true, f, backstack, tag);
+        add(true, f, backstack, tag);
     }
 
     // TODO last back is wrong
     public void add(boolean replace, BaseFragment f, String backstack, String tag) {
+        boolean alreadyAdded = false;
+
+        if (tag != null) {
+            BaseFragment tagFragment = (BaseFragment) manager.findFragmentByTag(tag);
+
+            if (tagFragment != null && currentFragment != tagFragment) {
+                f = tagFragment;
+                alreadyAdded = true;
+                fragments.remove(f);
+            } else if (tagFragment == currentFragment && tagFragment != null) {
+                // Return if current tagFragment is present
+                return;
+            }
+        }
+
+
         FragmentTransaction t = manager.beginTransaction();
         t.setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out, R.anim.slide_left_in, R.anim.slide_right_out);
 
@@ -90,16 +107,21 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
 
         fragments.add(f);
         onStackChanged();
-        f.onFragmentEnter();
 
-        if (replace)
+        if (alreadyAdded) {
+            t.show(f);
+        } else if (replace) {
             t.replace(getFrame(), f, tag);
-        else {
+        } else {
             t.add(getFrame(), f, tag);
         }
 
-        t.addToBackStack(backstack)
-                .commit();
+        t.addToBackStack(backstack);
+        t.commit();
+        manager.executePendingTransactions();
+
+        currentFragment = f;
+        f.onFragmentEnter();
     }
 
     public boolean popBackStack() {
@@ -116,7 +138,6 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
             fragments.remove(index);
             onStackChanged();
 
-
             return true;
         }
 
@@ -124,18 +145,22 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
     }
 
     public void removeFragment(BaseFragment remove, BaseFragment show) {
+        remove.onFragmentExit();
+
         FragmentTransaction t = manager.beginTransaction();
         t.setCustomAnimations(R.anim.slide_left_in, R.anim.slide_right_out);
+        t.remove(remove);
+        manager.popBackStack();
 
-        remove.onFragmentExit();
 
         if (show != null) {
             t.show(show);
             show.onFragmentEnter();
         }
 
-        t.remove(remove)
-                .commit();
+        t.commit();
+
+        currentFragment = show;
     }
 
     public void changeFragment(BaseFragment fragment) {

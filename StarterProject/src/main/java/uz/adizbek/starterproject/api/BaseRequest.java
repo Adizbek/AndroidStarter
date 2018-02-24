@@ -8,8 +8,8 @@ import retrofit2.Call;
 
 public class BaseRequest<T> {
 
-    public boolean finished = false;
-    public Call request;
+    public boolean finished = false, executing = false;
+    private Call request;
 
     public void setFinished() {
         finished = true;
@@ -24,5 +24,17 @@ public class BaseRequest<T> {
         r.request = call;
 
         return r;
+    }
+
+    public Call<?> getRequest() {
+        return request.clone();
+    }
+
+    public boolean isExecuting() {
+        return executing;
+    }
+
+    public void setExecuting(boolean executing) {
+        this.executing = executing;
     }
 }
