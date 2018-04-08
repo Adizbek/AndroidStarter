@@ -9,7 +9,9 @@ public interface BaseFragmentListener {
 
     void onFragmentExit();
 
-    void onNoResult();
+    void showNoResult();
+
+    void hideNoResult();
 
     void onNetworkError(int code);
 

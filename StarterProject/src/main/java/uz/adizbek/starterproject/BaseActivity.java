@@ -48,6 +48,12 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
         }
     }
 
+
+    public void setToolbarCustomView(View v) {
+        getSupportActionBar().setDisplayShowCustomEnabled(true);
+        getSupportActionBar().setCustomView(v);
+    }
+
     public static void setToolbar(Activity activity, String title, boolean upEnabled, boolean showHome) {
         setToolbar(activity, title, upEnabled, showHome, false, null);
     }
@@ -61,7 +67,7 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
     }
 
     public void addFragmentToStack(BaseFragment f, String backstack, String tag) {
-        add(false, f, backstack, tag);
+        add(false, f, backstack, tag, true);
     }
 
     public void replaceFragmentToStack(BaseFragment fragment) {
@@ -73,11 +79,15 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
     }
 
     public void replaceFragmentToStack(BaseFragment f, String backstack, String tag) {
-        add(true, f, backstack, tag);
+        add(true, f, backstack, tag, true);
+    }
+
+    public void replaceFragmentToStack(BaseFragment f, String backstack, String tag, boolean save) {
+        add(true, f, backstack, tag, save);
     }
 
     // TODO last back is wrong
-    public void add(boolean replace, BaseFragment f, String backstack, String tag) {
+    public void add(boolean replace, BaseFragment f, String backstack, String tag, boolean save) {
         boolean alreadyAdded = false;
 
         if (tag != null) {
@@ -105,7 +115,8 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
             t.hide(fragment);
         }
 
-        fragments.add(f);
+        if (save)
+            fragments.add(f);
         onStackChanged();
 
         if (alreadyAdded) {
@@ -174,6 +185,9 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
 
     @Override
     public void onBackPressed() {
+        if (currentFragment != null && currentFragment.onBackPressed())
+            return;
+
         if (fragments.size() == 1) {
             finish();
             return;
@@ -188,4 +202,5 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
     public void onStackChanged() {
 
     }
+
 }

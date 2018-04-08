@@ -37,10 +37,41 @@ public class ImageViewerFragment extends BaseFragment {
     private Bitmap bitmap;
     private File file;
     private Uri uri;
+    private Thread tr;
+
+
+    private boolean isSingle = false;
+
+    private boolean forceHide = false;
+
+    @Override
+    public void onFragmentEnter() {
+        super.onFragmentEnter();
+
+        if (activity.getSupportActionBar().isShowing()) {
+            activity.getSupportActionBar().hide();
+            forceHide = true;
+        }
+    }
+
+    @Override
+    public void onFragmentExit() {
+        super.onFragmentExit();
+
+        if (forceHide && !activity.getSupportActionBar().isShowing()) {
+            activity.getSupportActionBar().show();
+        }
+    }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        if (isSingle) {
+            view.findViewById(uz.adizbek.starterproject.R.id.closePreview).setOnClickListener(v -> activity.popBackStack());
+        } else {
+            view.findViewById(uz.adizbek.starterproject.R.id.closePreview).setVisibility(View.GONE);
+        }
 
         RequestCreator creator = null;
         if (type == ImageSource.URL) {
@@ -59,10 +90,9 @@ public class ImageViewerFragment extends BaseFragment {
 
         RequestCreator finalCreator = creator;
 
-        new Thread(() -> {
+        tr = new Thread(() -> {
             try {
                 Bitmap src = (type == ImageSource.BITMAP) ? bitmap : finalCreator.get();
-
 
                 float dt = 600 / src.getWidth();
                 int height = (int) (src.getHeight() * dt);
@@ -74,27 +104,27 @@ public class ImageViewerFragment extends BaseFragment {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }).start();
+        });
 
+        tr.start();
+
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        tr.interrupt();
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        activity.getSupportActionBar().hide();
-
         root = (RelativeLayout) inflater.inflate(R.layout.fragment_image_viewer, null);
         return root;
     }
 
-    @Override
-    public void onDestroyView() {
-        activity.getSupportActionBar().show();
-
-        super.onDestroyView();
-    }
-
-    public BaseFragment withUrl(String url) {
+    public ImageViewerFragment withUrl(String url) {
         this.url = url;
         type = ImageSource.URL;
 
@@ -102,14 +132,14 @@ public class ImageViewerFragment extends BaseFragment {
     }
 
 
-    public BaseFragment withDrawable(@DrawableRes int draw) {
+    public ImageViewerFragment withDrawable(@DrawableRes int draw) {
         drawable = draw;
         type = ImageSource.DRAWABLE;
 
         return this;
     }
 
-    public BaseFragment withBitmap(Bitmap draw) {
+    public ImageViewerFragment withBitmap(Bitmap draw) {
         bitmap = draw;
         type = ImageSource.BITMAP;
 
@@ -117,17 +147,23 @@ public class ImageViewerFragment extends BaseFragment {
     }
 
 
-    public BaseFragment withFile(File f) {
+    public ImageViewerFragment withFile(File f) {
         file = f;
         type = ImageSource.FILE;
 
         return this;
     }
 
-    public BaseFragment withUri(Uri f) {
+    public ImageViewerFragment withUri(Uri f) {
         uri = f;
         type = ImageSource.URL;
 
+        return this;
+    }
+
+
+    public ImageViewerFragment setSingle(boolean single) {
+        isSingle = single;
         return this;
     }
 

@@ -1,8 +1,6 @@
 package uz.adizbek.starterproject;
 
 import android.app.Activity;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +14,9 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
     public BaseActivity activity;
 
     private View errorLayout;
+    private View errorNoResultLayout = null;
     private boolean errorLayoutShown = false;
+    private boolean errorNoResultShown = false;
 
     @Override
     public void onAttach(Activity activity) {
@@ -42,16 +42,32 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
 
 
     @Override
-    public void onNoResult() {
+    public void showNoResult() {
+        if (errorNoResultLayout != null) {
+            errorNoResultLayout.setVisibility(View.VISIBLE);
+        } else {
+            errorNoResultLayout = getLayoutInflater().inflate(getNoResultLayout(), null);
 
+            getErrorContainerView().addView(errorNoResultLayout, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        }
+
+        errorNoResultShown = true;
+    }
+
+    @Override
+    public void hideNoResult() {
+        if (errorNoResultShown) {
+            errorNoResultLayout.setVisibility(View.GONE);
+            errorLayoutShown = false;
+        }
     }
 
     public boolean useNoResult() {
         return false;
     }
 
-    public View getNoResultLayout() {
-        return null;
+    public int getNoResultLayout() {
+        return 0;
     }
 
     public boolean useNetworkError() {
@@ -114,4 +130,10 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
     }
 
 
+    /**
+     * @return returns true if handled by fragment
+     */
+    public boolean onBackPressed() {
+        return false;
+    }
 }
