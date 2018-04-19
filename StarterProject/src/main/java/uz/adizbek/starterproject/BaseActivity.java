@@ -128,7 +128,7 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
         }
 
         t.addToBackStack(backstack);
-        t.commit();
+        t.commitAllowingStateLoss();
         manager.executePendingTransactions();
 
         currentFragment = f;

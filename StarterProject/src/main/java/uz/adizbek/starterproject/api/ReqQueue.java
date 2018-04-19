@@ -1,5 +1,6 @@
 package uz.adizbek.starterproject.api;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import retrofit2.Call;
@@ -51,6 +52,16 @@ public class ReqQueue {
 
     public void hasFinished(int id) {
         requests.get(id).setFinished();
+    }
+
+    public void cancelAll() {
+        for (BaseRequest baseRequest : requests.values()) {
+            if (baseRequest.isExecuting() &&
+                    !baseRequest.getRequest().isExecuted() &&
+                    !baseRequest.getRequest().isCanceled()) {
+                baseRequest.getRequest().cancel();
+            }
+        }
     }
 
 }

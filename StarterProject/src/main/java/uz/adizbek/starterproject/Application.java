@@ -6,6 +6,8 @@ import android.support.multidex.MultiDexApplication;
 
 import com.blankj.utilcode.util.Utils;
 import com.google.firebase.FirebaseApp;
+import com.squareup.picasso.LruCache;
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
 import uz.adizbek.starterproject.helper.Favorite;
@@ -50,7 +52,10 @@ public class Application extends MultiDexApplication {
     }
 
     protected void initPicasso() {
-        pic = Picasso.with(this);
+        pic = new Picasso.Builder(this)
+                .memoryCache(new LruCache(1024)) // Maybe something fishy here?
+                .build();
+
     }
 
     protected void initRetro() {

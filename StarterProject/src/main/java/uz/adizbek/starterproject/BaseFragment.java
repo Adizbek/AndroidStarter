@@ -82,40 +82,27 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
     public void onNetworkError(int code) {
         if (errorLayoutShown) return;
 
-        errorLayout = getLayoutInflater().inflate(R.layout.layout_network_error, null);
-        errorLayout.findViewById(R.id.reconnect)
-                .setOnClickListener(v -> onNetworkRetry(code));
+        if(errorLayout == null) {
+            errorLayout = getLayoutInflater().inflate(R.layout.layout_network_error, null);
+            errorLayout.findViewById(R.id.reconnect)
+                    .setOnClickListener(v -> onNetworkRetry(code));
 
-        getErrorContainerView().addView(errorLayout, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            getErrorContainerView().addView(errorLayout, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        } else {
+            showErrorLayout();
+        }
 
         errorLayoutShown = true;
     }
 
-    @Override
-    public void onNetworkRetry(int code) {
-
-    }
-
-    @Override
-    public void onNetworkRetrySuccess(int code) {
-        removeErrorLayout();
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-
-        removeErrorLayout();
-    }
-
-    private void removeErrorLayout() {
-        if (!errorLayoutShown) return;
-
-        getErrorContainerView()
-                .removeView(errorLayout);
-
-        errorLayoutShown = false;
-    }
+//    private void removeErrorLayout() {
+//        if (!errorLayoutShown) return;
+//
+//        getErrorContainerView()
+//                .removeView(errorLayout);
+//
+//        errorLayoutShown = false;
+//    }
 
     private void showErrorLayout() {
         if (!errorLayoutShown) return;
@@ -127,6 +114,22 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
         if (!errorLayoutShown) return;
 
         errorLayout.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onNetworkRetry(int code) {
+
+    }
+
+    @Override
+    public void onNetworkRetrySuccess(int code) {
+        hideErrorLayout();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+//        removeErrorLayout();
     }
 
 
