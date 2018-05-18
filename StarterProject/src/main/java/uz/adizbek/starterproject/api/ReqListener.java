@@ -7,6 +7,7 @@ import retrofit2.Response;
  */
 
 public interface ReqListener {
-    void onReqSuccess(Integer id, Response response);
+    void onReqSuccess(Integer id, Object data, Response response);
+
     void onReqFail(Integer id);
 }

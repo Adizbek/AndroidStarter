@@ -1,6 +1,7 @@
 package uz.adizbek.starterproject.api;
 
-import java.util.ArrayList;
+import android.util.Log;
+
 import java.util.HashMap;
 
 import retrofit2.Call;
@@ -16,6 +17,7 @@ public class ReqQueue {
     HashMap<Integer, BaseRequest> requests = new HashMap<>();
 
     public void run(ReqListener listener) {
+        if (requests.size() <= 0) return;
 
         for (Integer id : requests.keySet()) {
             BaseRequest req = requests.get(id);
@@ -23,6 +25,8 @@ public class ReqQueue {
             if (req.isFinished() || req.isExecuting()) continue;
 
             req.setExecuting(true);
+            Log.d("NETWORK", "QUEUE access to returned: " + req.getRequest().request().url().toString());
+
 
             req.getRequest().enqueue(new Callback() {
                 @Override
@@ -30,7 +34,7 @@ public class ReqQueue {
                     req.finished = true;
                     req.setExecuting(false);
 
-                    listener.onReqSuccess(id, response);
+                    listener.onReqSuccess(id, response.body(), response);
                 }
 
                 @Override

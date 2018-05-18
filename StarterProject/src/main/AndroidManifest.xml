@@ -1,2 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="uz.adizbek.starterproject" />
+    package="uz.adizbek.starterproject">
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application>
+        <receiver
+            android:name=".receiver.NetworkStateListener"
+            android:enabled="true"
+            android:exported="false">
+
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+
+        </receiver>
+    </application>
+
+</manifest>

@@ -2,9 +2,18 @@ package uz.adizbek.starterproject;
 
 import android.app.Activity;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.Toast;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import uz.adizbek.starterproject.api.ReqQueue;
+import uz.adizbek.starterproject.event.NetworkStateEvent;
 
 /**
  * Created by adizbek on 2/18/18.
@@ -13,16 +22,34 @@ import android.widget.LinearLayout;
 public abstract class BaseFragment extends Fragment implements BaseFragmentListener {
     public BaseActivity activity;
 
+    public ReqQueue reqQueue;
     private View errorLayout;
     private View errorNoResultLayout = null;
     private boolean errorLayoutShown = false;
     private boolean errorNoResultShown = false;
 
+    public String stack;
+
+    public String TAG = getClass().getCanonicalName();
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
+        this.reqQueue = new ReqQueue();
         this.activity = (BaseActivity) activity;
+
+        Log.d("FRAGMENTS", "onAttach() returned: " + getClass().getCanonicalName());
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onDetach() {
+        EventBus.getDefault().unregister(this);
+
+        Log.d(TAG, "detached() returned: ");
+
+        super.onDetach();
     }
 
     public void setTitle(String title) {
@@ -31,15 +58,36 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
 
     @Override
     public void onFragmentEnter() {
+        Log.d(TAG, "onStart() onFragmentEnter: ");
 //        showErrorLayout();
     }
 
 
     @Override
     public void onFragmentExit() {
+        Log.d(TAG, "onStart() onFragmentExit: ");
 //        hideErrorLayout();
     }
 
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        Log.d(TAG, "onStart() returned: ");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        Log.d(TAG, "onStop() returned: ");
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onNetworkStateEvent(NetworkStateEvent event) {
+        Toast.makeText(activity, "Network: ".concat(event.connected ? "Yes" : "No"), Toast.LENGTH_SHORT).show();
+    }
 
     @Override
     public void showNoResult() {
@@ -82,7 +130,7 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
     public void onNetworkError(int code) {
         if (errorLayoutShown) return;
 
-        if(errorLayout == null) {
+        if (errorLayout == null) {
             errorLayout = getLayoutInflater().inflate(R.layout.layout_network_error, null);
             errorLayout.findViewById(R.id.reconnect)
                     .setOnClickListener(v -> onNetworkRetry(code));

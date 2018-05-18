@@ -18,7 +18,7 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
     public FragmentManager manager;
     public BaseFragment currentFragment = null;
 
-    public ArrayList<BaseFragment> fragments = new ArrayList<>();
+    public ArrayList<FragmentStack> stacks = new ArrayList<>();
 
 
     public int getFrame() {
@@ -88,6 +88,9 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
 
     // TODO last back is wrong
     public void add(boolean replace, BaseFragment f, String backstack, String tag, boolean save) {
+        if (currentFragment == f)
+            return;
+
         boolean alreadyAdded = false;
 
         if (tag != null) {
@@ -96,28 +99,39 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
             if (tagFragment != null && currentFragment != tagFragment) {
                 f = tagFragment;
                 alreadyAdded = true;
-                fragments.remove(f);
             } else if (tagFragment == currentFragment && tagFragment != null) {
                 // Return if current tagFragment is present
                 return;
             }
         }
 
+        BaseFragment out = null;
+
+        // look up for fragment. if exists just show
+        if (!alreadyAdded) {
+            for (FragmentStack fragment : stacks) {
+                if (fragment.in == f) {
+                    alreadyAdded = true;
+                    save = false;
+                }
+            }
+        }
 
         FragmentTransaction t = manager.beginTransaction();
         t.setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out, R.anim.slide_left_in, R.anim.slide_right_out);
 
 
-        if (fragments.size() > 0) {
-            BaseFragment fragment = fragments.get(fragments.size() - 1);
-            fragment.onFragmentExit();
+        if (stacks.size() > 0) {
+            BaseFragment fragment = stacks.get(stacks.size() - 1).in;
 
+            fragment.onFragmentExit();
+            out = fragment;
             t.hide(fragment);
         }
 
-        if (save)
-            fragments.add(f);
-        onStackChanged();
+//        if (save)
+//            fragments.add(f);
+//        onStackChanged();
 
         if (alreadyAdded) {
             t.show(f);
@@ -127,27 +141,35 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
             t.add(getFrame(), f, tag);
         }
 
+        f.stack = backstack;
+
         t.addToBackStack(backstack);
         t.commitAllowingStateLoss();
         manager.executePendingTransactions();
+
+        stacks.add(new FragmentStack(f, out));
 
         currentFragment = f;
         f.onFragmentEnter();
     }
 
-    public boolean popBackStack() {
-        if (fragments.size() > 1) {
-            int index = fragments.size() - 1;
-            BaseFragment f = fragments.get(index);
-
-            if (index - 1 >= 0) {
-                removeFragment(f, fragments.get(index - 1));
-            } else {
-                removeFragment(f, null);
+    public BaseFragment popFragmentInStack(String stack) {
+        for (int i = stacks.size() - 1; i >= 0; i--) {
+            if (stacks.get(i).in.stack != null && stacks.get(i).in.stack.equals(stack)) {
+                return stacks.get(i).in;
             }
+        }
 
-            fragments.remove(index);
-            onStackChanged();
+        return null;
+    }
+
+    public boolean popBackStack() {
+        if (stacks.size() > 1) {
+            int index = stacks.size() - 1;
+            FragmentStack f = stacks.get(index);
+
+            removeFragment(f.in, f.out);
+            stacks.remove(index);
 
             return true;
         }
@@ -160,7 +182,7 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
 
         FragmentTransaction t = manager.beginTransaction();
         t.setCustomAnimations(R.anim.slide_left_in, R.anim.slide_right_out);
-        t.remove(remove);
+        t.hide(remove);
         manager.popBackStack();
 
 
@@ -178,9 +200,21 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
         FragmentTransaction t = manager.beginTransaction();
         t.setCustomAnimations(R.anim.slide_left_out, R.anim.slide_right_in, R.anim.slide_right_out, R.anim.slide_left_in);
 
-        t.replace(getFrame(), fragment)
-                .commit();
+        if (currentFragment != null) {
+            currentFragment.onFragmentExit();
+        }
 
+        t.replace(getFrame(), fragment)
+                .commitAllowingStateLoss();
+        manager.executePendingTransactions();
+
+        fragment.onFragmentEnter();
+
+        currentFragment = fragment;
+    }
+
+    public String getCurrentFragmentStackName() {
+        return currentFragment.stack;
     }
 
     @Override
@@ -188,7 +222,7 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
         if (currentFragment != null && currentFragment.onBackPressed())
             return;
 
-        if (fragments.size() == 1) {
+        if (stacks.size() == 1) {
             finish();
             return;
         }
@@ -197,6 +231,7 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
             super.onBackPressed();
         }
     }
+//            BaseFragment f = popFragmentInStack(stack);
 
     @Override
     public void onStackChanged() {
