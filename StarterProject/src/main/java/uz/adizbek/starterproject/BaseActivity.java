@@ -6,6 +6,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -48,6 +50,13 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
         }
     }
 
+    public void cleanToolbar(){
+        this.getSupportActionBar().setHomeButtonEnabled(false);
+        this.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        this.getSupportActionBar().setDisplayShowCustomEnabled(false);
+        this.getSupportActionBar().setCustomView(null);
+    }
+
 
     public void setToolbarCustomView(View v) {
         getSupportActionBar().setDisplayShowCustomEnabled(true);
@@ -84,6 +93,19 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
 
     public void replaceFragmentToStack(BaseFragment f, String backstack, String tag, boolean save) {
         add(true, f, backstack, tag, save);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        super.onOptionsItemSelected(item);
+
+        if (item.getItemId() == android.R.id.home) {
+            popBackStack();
+
+            return true;
+        }
+
+        return false;
     }
 
     // TODO last back is wrong

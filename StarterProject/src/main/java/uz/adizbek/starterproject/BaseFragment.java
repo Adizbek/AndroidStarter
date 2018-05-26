@@ -58,6 +58,7 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
 
     @Override
     public void onFragmentEnter() {
+        activity.cleanToolbar();
         Log.d(TAG, "onStart() onFragmentEnter: ");
 //        showErrorLayout();
     }

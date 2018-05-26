@@ -2,6 +2,7 @@ package uz.adizbek.starterproject.api;
 
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import retrofit2.Call;
@@ -68,4 +69,13 @@ public class ReqQueue {
         }
     }
 
+
+    /**
+     * Cancel this call, if it not executed
+     */
+    public static void cancel(Call call) {
+        if (call != null && !call.isCanceled()) {
+            call.cancel();
+        }
+    }
 }
