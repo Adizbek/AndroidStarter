@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,9 +20,10 @@ import java.util.ArrayList;
 public class BaseActivity extends AppCompatActivity implements FragmentStackListener {
     public FragmentManager manager;
     public BaseFragment currentFragment = null;
+    public String TAG = getClass().getCanonicalName();
+
 
     public ArrayList<FragmentStack> stacks = new ArrayList<>();
-
 
     public int getFrame() {
         return 0;
@@ -50,7 +52,7 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
         }
     }
 
-    public void cleanToolbar(){
+    public void cleanToolbar() {
         this.getSupportActionBar().setHomeButtonEnabled(false);
         this.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         this.getSupportActionBar().setDisplayShowCustomEnabled(false);
@@ -101,7 +103,6 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
 
         if (item.getItemId() == android.R.id.home) {
             popBackStack();
-
             return true;
         }
 
@@ -196,7 +197,9 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
             return true;
         }
 
-        return false;
+        onBackPressed();
+
+        return true;
     }
 
     public void removeFragment(BaseFragment remove, BaseFragment show) {
@@ -260,4 +263,14 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
 
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        Log.d(TAG, "onSaveInstanceState() returned: saved");
+
+        for (FragmentStack stack : stacks) {
+
+        }
+    }
 }

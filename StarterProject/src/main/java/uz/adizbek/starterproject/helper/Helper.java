@@ -4,6 +4,9 @@ import android.graphics.Bitmap;
 
 import com.blankj.utilcode.util.ImageUtils;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import uz.adizbek.starterproject.Application;
@@ -25,26 +28,20 @@ public class Helper {
         return RequestBody.create(MediaType.parse("text/plain"), str);
     }
 
+    public static RequestBody stringField(int str) {
+        return RequestBody.create(MediaType.parse("text/plain"), String.valueOf(str));
+    }
 
-    public static Bitmap getResizedBitmap(Bitmap bm) {
-        int width = bm.getWidth();
-        int height = bm.getHeight();
 
+    public static String currencyFormatter(String in) {
+        return currencyFormatter(Integer.parseInt(in));
+    }
 
-        if (Math.max(width, height) > 800) {
-            if (width > height) {
-                float scale = ((float) 800) / width;
-                width = 800;
-                height *= scale;
-            } else {
-                float scale = ((float) 800) / height;
-                height = 800;
-                width *= scale;
-            }
-        }
+    public static String currencyFormatter(int in) {
+        DecimalFormatSymbols sym = DecimalFormatSymbols.getInstance();
+        sym.setGroupingSeparator(' ');
+        DecimalFormat formatter = new DecimalFormat("#,###", sym);
 
-        // Recreate the new Bitmap
-        return ImageUtils.scale(bm, width, height);
-
+        return formatter.format(in).concat(" сум");
     }
 }

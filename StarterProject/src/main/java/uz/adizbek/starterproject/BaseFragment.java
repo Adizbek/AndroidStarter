@@ -1,11 +1,16 @@
 package uz.adizbek.starterproject;
 
 import android.app.Activity;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
@@ -22,6 +27,8 @@ import uz.adizbek.starterproject.event.NetworkStateEvent;
 public abstract class BaseFragment extends Fragment implements BaseFragmentListener {
     public BaseActivity activity;
 
+    private boolean isLoading = withLoading();
+
     public ReqQueue reqQueue;
     private View errorLayout;
     private View errorNoResultLayout = null;
@@ -31,6 +38,8 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
     public String stack;
 
     public String TAG = getClass().getCanonicalName();
+    protected View baseView;
+    private View loading;
 
     @Override
     public void onAttach(Activity activity) {
@@ -60,6 +69,10 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
     public void onFragmentEnter() {
         activity.cleanToolbar();
         Log.d(TAG, "onStart() onFragmentEnter: ");
+
+        if (baseView != null && loading != null && loading.getVisibility() != View.VISIBLE) {
+            showLoading();
+        }
 //        showErrorLayout();
     }
 
@@ -68,6 +81,10 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
     public void onFragmentExit() {
         Log.d(TAG, "onStart() onFragmentExit: ");
 //        hideErrorLayout();
+
+        if (baseView != null && loading != null && loading.getVisibility() == View.VISIBLE) {
+            hideLoading();
+        }
     }
 
 
@@ -84,6 +101,45 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
 
         Log.d(TAG, "onStop() returned: ");
     }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        baseView = view;
+
+        if (withLoading()) {
+            showLoading();
+        }
+    }
+
+
+    /**
+     * Show loading view for BaseFragment instance
+     */
+    public void showLoading() {
+        if (baseView == null) {
+            throw new NullPointerException("You should override onViewCreated and call super to use this method");
+        }
+
+        baseView.setVisibility(View.GONE);
+
+        loading = getLayoutInflater().inflate(R.layout.loading_view, null);
+
+        ((ViewGroup) baseView.getParent()).addView(loading);
+    }
+
+    /**
+     * Hide loading view for BaseFragment instance
+     */
+    public void hideLoading() {
+        baseView.setVisibility(View.VISIBLE);
+
+        ((ViewGroup) baseView.getParent()).removeView(loading);
+
+        loading = null;
+    }
+
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onNetworkStateEvent(NetworkStateEvent event) {
@@ -182,10 +238,19 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
     }
 
 
+    protected boolean withLoading() {
+        return false;
+    }
+
     /**
      * @return returns true if handled by fragment
      */
     public boolean onBackPressed() {
         return false;
+    }
+
+
+    public void showHomeTitle(String title) {
+        BaseActivity.setToolbar(activity, title, true, true);
     }
 }
