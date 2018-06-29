@@ -1,11 +1,14 @@
 package uz.adizbek.starterproject.helper;
 
-import android.graphics.Bitmap;
-
-import com.blankj.utilcode.util.ImageUtils;
+import android.text.format.DateFormat;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -43,5 +46,28 @@ public class Helper {
         DecimalFormat formatter = new DecimalFormat("#,###", sym);
 
         return formatter.format(in).concat(" сум");
+    }
+
+    public static String dateFormatter(Calendar myCalendar) {
+        return java.text.DateFormat.getDateInstance(java.text.DateFormat.LONG).format(myCalendar.getTime());
+    }
+
+    public static Date str2Date(String date) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
+
+        try {
+            Date d = format.parse(date);
+            System.out.println(date);
+
+            return d;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return new Date();
+    }
+
+    public static String date2MonthAndDay(Date date) {
+        return (String) DateFormat.format("dd-MMM", date);
     }
 }
