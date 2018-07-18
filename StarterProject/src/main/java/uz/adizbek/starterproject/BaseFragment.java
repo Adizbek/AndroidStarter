@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -49,6 +50,7 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
         this.activity = (BaseActivity) activity;
 
         Log.d("FRAGMENTS", "onAttach() returned: " + getClass().getCanonicalName());
+
         EventBus.getDefault().register(this);
     }
 
@@ -63,6 +65,10 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
 
     public void setTitle(String title) {
         activity.setTitle(title);
+    }
+
+    public void setTitle(@StringRes int title) {
+        activity.setTitle(getString(title));
     }
 
     @Override
@@ -252,5 +258,9 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
 
     public void showHomeTitle(String title) {
         BaseActivity.setToolbar(activity, title, true, true);
+    }
+
+    public void showHomeTitle(@StringRes int title) {
+        showHomeTitle(getString(title));
     }
 }

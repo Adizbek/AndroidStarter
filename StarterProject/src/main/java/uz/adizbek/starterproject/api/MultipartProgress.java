@@ -25,7 +25,6 @@ public class MultipartProgress extends RequestBody {
 
     private static final int DEFAULT_BUFFER_SIZE = 2048;
     private Activity context;
-    private AlertDialog dialog;
 
 
     public MultipartProgress(final File file, final Progress listener) {
@@ -68,8 +67,6 @@ public class MultipartProgress extends RequestBody {
                 if (tp != per) {
                     per = tp;
                     mListener.update(per, uploaded, fileLength);
-
-                    dialog.setMessage(String.valueOf(per));
                 }
 
                 uploaded += read;
@@ -81,8 +78,6 @@ public class MultipartProgress extends RequestBody {
             if (uploaded == fileLength) {
                 mListener.update(100, uploaded, fileLength);
             }
-
-            dialog.dismiss();
         }
     }
 
@@ -90,22 +85,4 @@ public class MultipartProgress extends RequestBody {
         void update(int percent, long uploaded, long fileLength);
     }
 
-    public MultipartProgress bind(Activity context) {
-        this.context = context;
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-
-        builder.setTitle(R.string.upload);
-        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                System.out.println("Dismissed");
-            }
-        });
-
-        dialog = builder.show();
-
-
-        return this;
-    }
 }

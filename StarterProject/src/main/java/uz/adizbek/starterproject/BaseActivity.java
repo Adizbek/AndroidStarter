@@ -247,7 +247,7 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
         if (currentFragment != null && currentFragment.onBackPressed())
             return;
 
-        if (stacks.size() == 1) {
+        if (stacks.size() <= 1) {
             finish();
             return;
         }
