@@ -105,4 +105,17 @@ public class ReqQueue {
 
         runRequest(id, t, reqListener);
     }
+
+    public void replace(int id, Call call) {
+        BaseRequest req = requests.get(id);
+
+        if (req != null) {
+            req.getRequest();
+            ReqQueue.cancel(req.getRequest());
+
+            requests.remove(id);
+        }
+
+        requests.put(id, BaseRequest.make(call));
+    }
 }

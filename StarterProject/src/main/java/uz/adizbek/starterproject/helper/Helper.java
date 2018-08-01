@@ -1,16 +1,24 @@
 package uz.adizbek.starterproject.helper;
 
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.support.annotation.StringRes;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+
+import com.blankj.utilcode.util.StringUtils;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -30,7 +38,8 @@ import uz.adizbek.starterproject.R;
  */
 
 public class Helper {
-    public static final String defaultLang = "uz";
+    public static final String defaultLang = "ru";
+    private static Locale locale;
 
     public static String urlImage(String src) {
         return urlImage(src, Application.getHost());
@@ -50,7 +59,11 @@ public class Helper {
 
 
     public static String currencyFormatter(String in) {
-        return currencyFormatter(Integer.parseInt(in));
+        try {
+            return currencyFormatter(Integer.parseInt(in));
+        } catch (Exception e) {
+            return currencyFormatter(0);
+        }
     }
 
     public static String currencyFormatter(int in) {
@@ -58,7 +71,7 @@ public class Helper {
         sym.setGroupingSeparator(' ');
         DecimalFormat formatter = new DecimalFormat("#,###", sym);
 
-        return formatter.format(in).concat(" сум");
+        return String.format(Application.c.getString(R.string.currency_sum), formatter.format(in));
     }
 
     public static String dateFormatter(Calendar myCalendar) {
@@ -66,22 +79,31 @@ public class Helper {
     }
 
     public static Date str2Date(String date) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
+        return str2Date(date, "yyyy-MM-dd HH:mm:ss");
+    }
+
+    public static Date str2Date(String date, String pattern) {
+        SimpleDateFormat format = new SimpleDateFormat(pattern, getLocale());
 
         try {
             Date d = format.parse(date);
             System.out.println(date);
 
             return d;
-        } catch (ParseException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Parse error ");
+            return new Date();
         }
-
-        return new Date();
     }
 
     public static String date2MonthAndDay(Date date) {
         return (String) DateFormat.format("dd-MMM", date);
+    }
+
+
+    public static String date2MonthAndDayAndHour(Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM, HH:mm", Helper.getLocale());
+        return sdf.format(date);
     }
 
     public static String dateToFullStringFormat(Calendar calendar) {
@@ -89,12 +111,22 @@ public class Helper {
     }
 
 
+    public static String date2Custom(Date date, String pattern) {
+        SimpleDateFormat sdf = new SimpleDateFormat(pattern, Helper.getLocale());
+        return sdf.format(date);
+    }
+
+
     public static String dateToFullStringFormat(Date calendar) {
         return DateFormat.format("yyyy-MM-dd HH:mm:ss", calendar.getTime()).toString();
     }
 
+    public static void loadSavedLang() {
+        changeLocale(getLang());
+    }
+
     public static void changeLocale(String lang) {
-        Locale locale = new Locale(lang);
+        locale = new Locale(lang);
         Locale.setDefault(locale);
 
         Configuration config = new Configuration();
@@ -118,6 +150,17 @@ public class Helper {
         tv.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
+    public static void bindHtml(TextView tv, @StringRes int res) {
+        bindHtml(tv, tv.getContext().getResources().getString(res));
+    }
+
+    public static Locale getLocale() {
+        if (locale == null)
+            loadSavedLang();
+
+        return locale;
+    }
+
 
     public static class Bundle {
         private android.os.Bundle _bundle;
@@ -126,10 +169,25 @@ public class Helper {
             _bundle = new android.os.Bundle();
         }
 
-        public android.os.Bundle putInt(String id, int uid) {
+        public Bundle putInt(String id, int uid) {
             _bundle.putInt(id, uid);
+            return this;
+        }
+
+        public Bundle putParcelable(String id, Parcelable uid) {
+            _bundle.putParcelable(id, uid);
+            return this;
+        }
+
+        public Bundle putString(String id, String uid) {
+            _bundle.putString(id, uid);
+            return this;
+        }
+
+        public android.os.Bundle get() {
             return _bundle;
         }
+
     }
 
     public static class UI {
@@ -146,5 +204,71 @@ public class Helper {
                 Log.w(TAG, "rippleEffect: error");
             }
         }
+    }
+
+    private static class Docs {
+        /**
+         * @url http://www.java2s.com/Tutorial/Java/0120__Development/0190__SimpleDateFormat.htm
+         * 6.12.SimpleDateFormat
+        6.12.1.	Get Today's Date
+        6.12.2.	new SimpleDateFormat('hh')
+        6.12.3.	new SimpleDateFormat('H') // The hour (0-23)
+        6.12.4.	new SimpleDateFormat('m'):9 The minutes
+        6.12.5.	new SimpleDateFormat('mm')
+        6.12.6.	new SimpleDateFormat('s'): The seconds
+        6.12.7.	new SimpleDateFormat('ss')
+        6.12.8.	new SimpleDateFormat('a'): The am/pm marker
+        6.12.9.	new SimpleDateFormat('z'): The time zone
+        6.12.10.	new SimpleDateFormat('zzzz')
+        6.12.11.	new SimpleDateFormat('Z')
+        6.12.12.	new SimpleDateFormat('hh:mm:ss a')
+        6.12.13.	new SimpleDateFormat('HH.mm.ss')
+        6.12.14.	new SimpleDateFormat('HH:mm:ss Z')
+        6.12.15.	The day number: SimpleDateFormat('d')
+        6.12.16.	Two digits day number: SimpleDateFormat('dd')
+        6.12.17.	The day in week: SimpleDateFormat('E')
+        6.12.18.	Full day name: SimpleDateFormat('EEEE')
+        6.12.19.	SimpleDateFormat('MM'): number based month value
+        6.12.20.	SimpleDateFormat('MM/dd/yy')
+        6.12.21.	SimpleDateFormat('dd-MMM-yy')
+        6.12.22.	The month: SimpleDateFormat('M')
+        6.12.23.	SimpleDateFormat('E, dd MMM yyyy HH:mm:ss Z')
+        6.12.24.	SimpleDateFormat('yyyy')
+        6.12.25.	Three letter-month value: SimpleDateFormat('MMM')
+        6.12.26.	Full length of month name: SimpleDateFormat('MMMM')
+        6.12.27.	Formatting a Date Using a Custom Format
+        6.12.28.	Formatting date with full day and month name and show time up to milliseconds with AM/PM
+        6.12.29.	Format date in dd/mm/yyyy format
+        6.12.30.	Format date in mm-dd-yyyy hh:mm:ss format
+        6.12.31.	Formatting day of week using SimpleDateFormat
+        6.12.32.	Formatting day of week in EEEE format like Sunday, Monday etc.
+        6.12.33.	Formatting day in d format like 1,2 etc
+        6.12.34.	Formatting day in dd format like 01, 02 etc.
+        6.12.35.	Format hour in h (1-12 in AM/PM) format like 1, 2..12.
+        6.12.36.	Format hour in hh (01-12 in AM/PM) format like 01, 02..12.
+        6.12.37.	Format hour in H (0-23) format like 0, 1...23.
+        6.12.38.	Format hour in HH (00-23) format like 00, 01..23.
+        6.12.39.	Format hour in k (1-24) format like 1, 2..24.
+        6.12.40.	Format hour in kk (01-24) format like 01, 02..24.
+        6.12.41.	Format hour in K (0-11 in AM/PM) format like 0, 1..11.
+        6.12.42.	Format hour in KK (00-11) format like 00, 01,..11.
+        6.12.43.	Formatting minute in m format like 1,2 etc.
+        6.12.44.	Format minutes in mm format like 01, 02 etc.
+        6.12.45.	Format month in M format like 1,2 etc
+        6.12.46.	Format Month in MM format like 01, 02 etc.
+        6.12.47.	Format Month in MMM format like Jan, Feb etc.
+        6.12.48.	Format Month in MMMM format like January, February etc.
+        6.12.49.	Format seconds in s format like 1,2 etc.
+        6.12.50.	Format seconds in ss format like 01, 02 etc.
+        6.12.51.	Format TimeZone in z (General time zone) format like EST.
+        6.12.52.	Format TimeZone in zzzz format Eastern Standard Time.
+        6.12.53.	Format TimeZone in Z (RFC 822) format like -8000.
+        6.12.54.	Format year in yy format like 07, 08 etc
+        6.12.55.	Format year in yyyy format like 2007, 2008 etc.
+        6.12.56.	Parsing custom formatted date string into Date object using SimpleDateFormat
+        6.12.57.	Date Formatting and Localization
+        6.12.58.	Add AM PM to time using SimpleDateFormat
+        6.12.59.	Check if a String is a valid date
+         */
     }
 }

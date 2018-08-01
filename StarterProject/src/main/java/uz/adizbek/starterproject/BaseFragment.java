@@ -36,6 +36,8 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
     private boolean errorLayoutShown = false;
     private boolean errorNoResultShown = false;
 
+    private boolean mEntered = false;
+
     public String stack;
 
     public String TAG = getClass().getCanonicalName();
@@ -64,7 +66,8 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
     }
 
     public void setTitle(String title) {
-        activity.setTitle(title);
+        BaseActivity.setToolbar(activity, title, true, false);
+        BaseActivity.setToolbar(activity, title, false, false);
     }
 
     public void setTitle(@StringRes int title) {
@@ -72,8 +75,15 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
     }
 
     @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+    }
+
+    @Override
     public void onFragmentEnter() {
-        activity.cleanToolbar();
+        if (activity != null && isAdded())
+            activity.cleanToolbar();
+
         Log.d(TAG, "onStart() onFragmentEnter: ");
 
         if (baseView != null && loading != null && loading.getVisibility() != View.VISIBLE) {
@@ -263,4 +273,5 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
     public void showHomeTitle(@StringRes int title) {
         showHomeTitle(getString(title));
     }
+
 }
