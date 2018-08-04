@@ -6,11 +6,22 @@ import android.content.res.TypedArray;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
+import android.app.Activity;
+import android.content.Context;
+import android.app.Activity;
+import android.content.res.TypedArray;
+import android.os.Build;
 import android.text.format.DateFormat;
+import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+
+
+import com.tapadoo.alerter.Alerter;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -23,6 +34,7 @@ import java.util.Locale;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import uz.adizbek.starterproject.Application;
+import uz.adizbek.starterproject.R;
 import uz.adizbek.starterproject.R;
 
 /**
@@ -146,5 +158,21 @@ public class Helper {
                 Log.w(TAG, "rippleEffect: error");
             }
         }
+    }
+
+    public static void showErrorAlert(Activity activity, String text) {
+        showAlert(activity,
+                text,
+                R.drawable.ic_info_outline_white_24dp,
+                android.R.color.holo_red_light);
+    }
+
+    public static void showAlert(Activity c, String text, int icon, int color) {
+        Alerter.create(c)
+                .setText(text)
+                .setIcon(icon)
+                .setBackgroundColorRes(color)
+                .show();
+
     }
 }

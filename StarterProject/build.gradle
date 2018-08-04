@@ -29,6 +29,8 @@ android {
 }
 
 dependencies {
+    implementation 'com.tapadoo.android:alerter:2.0.4'
+
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:recyclerview-v7:27.1.1'
