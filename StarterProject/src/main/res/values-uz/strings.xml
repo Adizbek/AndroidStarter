@@ -2,4 +2,6 @@
 <resources>
     <string name="app_name">StarterProject</string>
     <string name="currency_sum">%s so`m</string>
+    <string name="ok">Ok</string>
+    <string name="dialog_message_title">Xabar</string>
 </resources>

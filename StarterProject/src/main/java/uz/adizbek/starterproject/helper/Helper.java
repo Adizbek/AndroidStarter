@@ -7,19 +7,26 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.StringRes;
+import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import com.blankj.utilcode.util.StringUtils;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
@@ -100,6 +107,9 @@ public class Helper {
         return (String) DateFormat.format("dd-MMM", date);
     }
 
+    public static String date2MonthAndDay(String string) {
+        return date2MonthAndDay(str2Date(string));
+    }
 
     public static String date2MonthAndDayAndHour(Date date) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM, HH:mm", Helper.getLocale());
@@ -203,6 +213,199 @@ public class Helper {
             } catch (NullPointerException e) {
                 Log.w(TAG, "rippleEffect: error");
             }
+        }
+    }
+
+    public static class Dialog {
+        public static void showMessage(Activity activity, String text) {
+            showMessage(activity, activity.getString(R.string.dialog_message_title), text);
+        }
+
+        public static void showMessage(Activity activity, String title, String text) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+
+            builder.setTitle(title)
+                    .setMessage(text)
+                    .setPositiveButton(R.string.ok, null)
+                    .show();
+
+        }
+    }
+
+    public static class DateUtils {
+        public static int MINUTE = 60;
+        public static int HOUR = MINUTE * 60;
+        public static int DAY = HOUR * 24;
+
+        public static boolean isOnline(Date date) {
+            Calendar calendar = Calendar.getInstance();
+
+            calendar.add(Calendar.MINUTE, -5);
+
+            return date.after(calendar.getTime());
+        }
+
+        /**
+         * Get Human readable text of date
+         */
+        public static String getHRText(Date date) {
+            Date now = new Date();
+            long nt = now.getTime() / 1000;
+            long dt = date.getTime() / 1000;
+
+            Context c = Application.c;
+
+            if (nt >= dt) {
+                if (nt - dt < MINUTE) {
+                    return c.getString(R.string.date_just_now);
+                }
+
+                if (nt - dt < HOUR) {
+                    int min = (int) Math.ceil((nt - dt) / MINUTE);
+                    return c.getString(R.string.date_n_minute_ago, min);
+                }
+
+                if (getYesterday().before(date)) {
+                    if (now.getDate() == date.getDate()) {
+                        int hour = (int) Math.ceil((nt - dt) / HOUR);
+                        return c.getString(R.string.date_n_hour_ago, hour);
+                    } else {
+                        return c.getString(R.string.date_yesterday_at, date2Custom(date, "HH:mm"));
+                    }
+                }
+
+                if (getYearStart().before(date)) {
+                    return date2Custom(date, "dd-MMM HH:mm");
+                } else {
+                    return date2Custom(date, "dd-MMM, YYYY");
+                }
+            }
+
+            return date2Custom(date, "dd-MMM, YYYY");
+        }
+
+        public static String getOnlineText(Date date) {
+            if (isOnline(date)) {
+                return Application.c.getString(R.string.online);
+            } else {
+                return Application.c.getString(R.string.was_online, getHRText(date));
+            }
+        }
+
+        public static Date getYesterday() {
+            Calendar calendar = Calendar.getInstance();
+
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.HOUR, 0);
+            calendar.set(Calendar.SECOND, 0);
+
+            calendar.add(Calendar.HOUR, -24);
+
+            return calendar.getTime();
+        }
+
+        public static Date getYearStart() {
+            Calendar calendar = Calendar.getInstance();
+
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.HOUR, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.DAY_OF_YEAR, 1);
+
+            return calendar.getTime();
+        }
+    }
+
+    public static class ImageUtils {
+        public static Bitmap decodeSampledBitmapFromResource(File file, int size) {
+
+            // First decode with inJustDecodeBounds=true to check dimensions
+            final BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(file.getPath(), options);
+
+            // Calculate inSampleSize
+            options.inSampleSize = calculateInSampleSize(options, size);
+
+            // Decode bitmap with inSampleSize set
+            options.inJustDecodeBounds = false;
+            return BitmapFactory.decodeFile(file.getPath(), options);
+        }
+
+        public static Bitmap decodeSampledBitmapFromResource(File file) {
+            return decodeSampledBitmapFromResource(file, 800);
+        }
+
+        public static int calculateInSampleSize(
+                BitmapFactory.Options options, int maxSize) {
+
+            // Raw height and width of image
+            final int height = options.outHeight;
+            final int width = options.outWidth;
+            int inSampleSize = 1;
+
+//        if (height > reqHeight || width > reqWidth) {
+//
+//            final int halfHeight = height / 2;
+//            final int halfWidth = width / 2;
+//
+//            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+//            // height and width larger than the requested height and width.
+//            while ((halfHeight / inSampleSize) >= reqHeight
+//                    && (halfWidth / inSampleSize) >= reqWidth) {
+//                inSampleSize *= 2;
+//            }
+//        }
+
+            if (Math.max(width, height) > maxSize) {
+                if (width > height) {
+                    float scale = ((float) 800) / width;
+                    inSampleSize = (int) (1 / scale);
+//                width = 800;
+//                height *= scale;
+                } else {
+                    float scale = ((float) 800) / height;
+//                height = 800;
+//                width *= scale;
+                    inSampleSize = (int) (1 / scale);
+                }
+            }
+
+            return inSampleSize;
+        }
+
+        public static byte[] getBytes(Bitmap bmp) {
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            bmp.compress(Bitmap.CompressFormat.PNG, 90, stream);
+            byte[] byteArray = stream.toByteArray();
+            bmp.recycle();
+
+            try {
+                stream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+            return byteArray;
+        }
+
+        public static byte[] resize(File file, int size) {
+            return getBytes(decodeSampledBitmapFromResource(file, size));
+        }
+
+        public static String encodeTobase64(Bitmap image) {
+            Bitmap immagex = image;
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            immagex.compress(Bitmap.CompressFormat.PNG, 90, baos);
+            byte[] b = baos.toByteArray();
+            String imageEncoded = Base64.encodeToString(b, Base64.DEFAULT);
+            return imageEncoded;
+        }
+
+        public static Bitmap decodeBase64(String input) {
+            byte[] decodedByte = Base64.decode(input, 0);
+            return BitmapFactory.decodeByteArray(decodedByte, 0, decodedByte.length);
         }
     }
 

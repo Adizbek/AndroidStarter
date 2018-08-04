@@ -54,7 +54,8 @@ public class ReqQueue {
                 Object obj = response.body();
 
                 // TODO handle null
-                listener.onReqSuccess(id, obj, response);
+                if (listener != null)
+                    listener.onReqSuccess(id, obj, response);
             }
 
             @Override
@@ -117,5 +118,15 @@ public class ReqQueue {
         }
 
         requests.put(id, BaseRequest.make(call));
+    }
+
+    public void rerun(ReqListener listener) {
+        if (requests.size() <= 0) return;
+
+        cancelAll();
+
+        for (Integer id : requests.keySet()) {
+            restart(id, listener);
+        }
     }
 }
