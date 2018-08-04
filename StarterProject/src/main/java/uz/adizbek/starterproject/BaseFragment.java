@@ -29,6 +29,8 @@ import uz.adizbek.starterproject.event.NetworkStateEvent;
 public abstract class BaseFragment extends Fragment implements BaseFragmentListener {
     public BaseActivity activity;
 
+    public boolean bootstrapped = false;
+
     private boolean isLoading = withLoading();
 
     public ReqQueue reqQueue;
@@ -90,6 +92,7 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
         if (baseView != null && loading != null && loading.getVisibility() != View.VISIBLE) {
             showLoading();
         }
+
 //        showErrorLayout();
     }
 

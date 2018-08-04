@@ -179,6 +179,7 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
 
         currentFragment = f;
         f.onFragmentEnter();
+        f.bootstrapped = true;
     }
 
     public BaseFragment popFragmentInStack(String stack) {
