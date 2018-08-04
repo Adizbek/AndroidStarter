@@ -1,6 +1,7 @@
 package uz.adizbek.starterproject;
 
 import android.app.Activity;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
@@ -32,6 +33,7 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         manager = getSupportFragmentManager();
     }
@@ -160,6 +162,9 @@ public class BaseActivity extends AppCompatActivity implements FragmentStackList
             t.show(f);
         } else if (replace) {
             t.replace(getFrame(), f, tag);
+
+            out = null;
+            stacks.clear();
         } else {
             t.add(getFrame(), f, tag);
         }

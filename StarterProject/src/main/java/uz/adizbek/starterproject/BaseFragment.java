@@ -2,6 +2,7 @@ package uz.adizbek.starterproject;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
@@ -38,6 +39,8 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
     private boolean errorLayoutShown = false;
     private boolean errorNoResultShown = false;
 
+    private boolean mEntered = false;
+
     public String stack;
 
     public String TAG = getClass().getCanonicalName();
@@ -66,7 +69,8 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
     }
 
     public void setTitle(String title) {
-        activity.setTitle(title);
+        BaseActivity.setToolbar(activity, title, true, false);
+        BaseActivity.setToolbar(activity, title, false, false);
     }
 
     public void setTitle(@StringRes int title) {
@@ -74,8 +78,15 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
     }
 
     @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+    }
+
+    @Override
     public void onFragmentEnter() {
-        activity.cleanToolbar();
+        if (activity != null && isAdded())
+            activity.cleanToolbar();
+
         Log.d(TAG, "onStart() onFragmentEnter: ");
 
         if (baseView != null && loading != null && loading.getVisibility() != View.VISIBLE) {
@@ -142,11 +153,14 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
      * Hide loading view for BaseFragment instance
      */
     public void hideLoading() {
-        baseView.setVisibility(View.VISIBLE);
+        try {
 
-        ((ViewGroup) baseView.getParent()).removeView(loading);
+            baseView.setVisibility(View.VISIBLE);
+            ((ViewGroup) baseView.getParent()).removeView(loading);
+            loading = null;
+        } catch (Exception e) {
 
-        loading = null;
+        }
     }
 
 
@@ -180,6 +194,7 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
         return false;
     }
 
+    @LayoutRes
     public int getNoResultLayout() {
         return 0;
     }
@@ -242,6 +257,7 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
 
     @Override
     public void onDestroyView() {
+        reqQueue.cancelAll();
         super.onDestroyView();
 //        removeErrorLayout();
     }
@@ -266,4 +282,5 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentListe
     public void showHomeTitle(@StringRes int title) {
         showHomeTitle(getString(title));
     }
+
 }

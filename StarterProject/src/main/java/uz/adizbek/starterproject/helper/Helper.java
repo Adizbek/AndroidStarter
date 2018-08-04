@@ -1,10 +1,19 @@
 package uz.adizbek.starterproject.helper;
 
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.support.annotation.StringRes;
+import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.app.Activity;
 import android.content.Context;
@@ -16,12 +25,17 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.text.method.LinkMovementMethod;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-
 import com.tapadoo.alerter.Alerter;
+import com.blankj.utilcode.util.StringUtils;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -42,7 +56,8 @@ import uz.adizbek.starterproject.R;
  */
 
 public class Helper {
-    public static final String defaultLang = "uz";
+    public static final String defaultLang = "ru";
+    private static Locale locale;
 
     public static String urlImage(String src) {
         return urlImage(src, Application.getHost());
@@ -62,7 +77,11 @@ public class Helper {
 
 
     public static String currencyFormatter(String in) {
-        return currencyFormatter(Integer.parseInt(in));
+        try {
+            return currencyFormatter(Integer.parseInt(in));
+        } catch (Exception e) {
+            return currencyFormatter(0);
+        }
     }
 
     public static String currencyFormatter(int in) {
@@ -70,7 +89,7 @@ public class Helper {
         sym.setGroupingSeparator(' ');
         DecimalFormat formatter = new DecimalFormat("#,###", sym);
 
-        return formatter.format(in).concat(" сум");
+        return String.format(Application.c.getString(R.string.currency_sum), formatter.format(in));
     }
 
     public static String dateFormatter(Calendar myCalendar) {
@@ -78,22 +97,34 @@ public class Helper {
     }
 
     public static Date str2Date(String date) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
+        return str2Date(date, "yyyy-MM-dd HH:mm:ss");
+    }
+
+    public static Date str2Date(String date, String pattern) {
+        SimpleDateFormat format = new SimpleDateFormat(pattern, getLocale());
 
         try {
             Date d = format.parse(date);
             System.out.println(date);
 
             return d;
-        } catch (ParseException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Parse error ");
+            return new Date();
         }
-
-        return new Date();
     }
 
     public static String date2MonthAndDay(Date date) {
         return (String) DateFormat.format("dd-MMM", date);
+    }
+
+    public static String date2MonthAndDay(String string) {
+        return date2MonthAndDay(str2Date(string));
+    }
+
+    public static String date2MonthAndDayAndHour(Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM, HH:mm", Helper.getLocale());
+        return sdf.format(date);
     }
 
     public static String dateToFullStringFormat(Calendar calendar) {
@@ -101,12 +132,22 @@ public class Helper {
     }
 
 
+    public static String date2Custom(Date date, String pattern) {
+        SimpleDateFormat sdf = new SimpleDateFormat(pattern, Helper.getLocale());
+        return sdf.format(date);
+    }
+
+
     public static String dateToFullStringFormat(Date calendar) {
         return DateFormat.format("yyyy-MM-dd HH:mm:ss", calendar.getTime()).toString();
     }
 
+    public static void loadSavedLang() {
+        changeLocale(getLang());
+    }
+
     public static void changeLocale(String lang) {
-        Locale locale = new Locale(lang);
+        locale = new Locale(lang);
         Locale.setDefault(locale);
 
         Configuration config = new Configuration();
@@ -130,6 +171,17 @@ public class Helper {
         tv.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
+    public static void bindHtml(TextView tv, @StringRes int res) {
+        bindHtml(tv, tv.getContext().getResources().getString(res));
+    }
+
+    public static Locale getLocale() {
+        if (locale == null)
+            loadSavedLang();
+
+        return locale;
+    }
+
 
     public static class Bundle {
         private android.os.Bundle _bundle;
@@ -138,10 +190,25 @@ public class Helper {
             _bundle = new android.os.Bundle();
         }
 
-        public android.os.Bundle putInt(String id, int uid) {
+        public Bundle putInt(String id, int uid) {
             _bundle.putInt(id, uid);
+            return this;
+        }
+
+        public Bundle putParcelable(String id, Parcelable uid) {
+            _bundle.putParcelable(id, uid);
+            return this;
+        }
+
+        public Bundle putString(String id, String uid) {
+            _bundle.putString(id, uid);
+            return this;
+        }
+
+        public android.os.Bundle get() {
             return _bundle;
         }
+
     }
 
     public static class UI {
@@ -160,6 +227,7 @@ public class Helper {
         }
     }
 
+
     public static void showErrorAlert(Activity activity, String text) {
         showAlert(activity,
                 text,
@@ -174,5 +242,263 @@ public class Helper {
                 .setBackgroundColorRes(color)
                 .show();
 
+
+    public static class Dialog {
+        public static void showMessage(Activity activity, String text) {
+            showMessage(activity, activity.getString(R.string.dialog_message_title), text);
+        }
+
+        public static void showMessage(Activity activity, String title, String text) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+
+            builder.setTitle(title)
+                    .setMessage(text)
+                    .setPositiveButton(R.string.ok, null)
+                    .show();
+
+        }
+    }
+
+    public static class DateUtils {
+        public static int MINUTE = 60;
+        public static int HOUR = MINUTE * 60;
+        public static int DAY = HOUR * 24;
+
+        public static boolean isOnline(Date date) {
+            Calendar calendar = Calendar.getInstance();
+
+            calendar.add(Calendar.MINUTE, -5);
+
+            return date.after(calendar.getTime());
+        }
+
+        /**
+         * Get Human readable text of date
+         */
+        public static String getHRText(Date date) {
+            Date now = new Date();
+            long nt = now.getTime() / 1000;
+            long dt = date.getTime() / 1000;
+
+            Context c = Application.c;
+
+            if (nt >= dt) {
+                if (nt - dt < MINUTE) {
+                    return c.getString(R.string.date_just_now);
+                }
+
+                if (nt - dt < HOUR) {
+                    int min = (int) Math.ceil((nt - dt) / MINUTE);
+                    return c.getString(R.string.date_n_minute_ago, min);
+                }
+
+                if (getYesterday().before(date)) {
+                    if (now.getDate() == date.getDate()) {
+                        int hour = (int) Math.ceil((nt - dt) / HOUR);
+                        return c.getString(R.string.date_n_hour_ago, hour);
+                    } else {
+                        return c.getString(R.string.date_yesterday_at, date2Custom(date, "HH:mm"));
+                    }
+                }
+
+                if (getYearStart().before(date)) {
+                    return date2Custom(date, "dd-MMM HH:mm");
+                } else {
+                    return date2Custom(date, "dd-MMM, YYYY");
+                }
+            }
+
+            return date2Custom(date, "dd-MMM, YYYY");
+        }
+
+        public static String getOnlineText(Date date) {
+            if (isOnline(date)) {
+                return Application.c.getString(R.string.online);
+            } else {
+                return Application.c.getString(R.string.was_online, getHRText(date));
+            }
+        }
+
+        public static Date getYesterday() {
+            Calendar calendar = Calendar.getInstance();
+
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.HOUR, 0);
+            calendar.set(Calendar.SECOND, 0);
+
+            calendar.add(Calendar.HOUR, -24);
+
+            return calendar.getTime();
+        }
+
+        public static Date getYearStart() {
+            Calendar calendar = Calendar.getInstance();
+
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.HOUR, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.DAY_OF_YEAR, 1);
+
+            return calendar.getTime();
+        }
+    }
+
+    public static class ImageUtils {
+        public static Bitmap decodeSampledBitmapFromResource(File file, int size) {
+
+            // First decode with inJustDecodeBounds=true to check dimensions
+            final BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(file.getPath(), options);
+
+            // Calculate inSampleSize
+            options.inSampleSize = calculateInSampleSize(options, size);
+
+            // Decode bitmap with inSampleSize set
+            options.inJustDecodeBounds = false;
+            return BitmapFactory.decodeFile(file.getPath(), options);
+        }
+
+        public static Bitmap decodeSampledBitmapFromResource(File file) {
+            return decodeSampledBitmapFromResource(file, 800);
+        }
+
+        public static int calculateInSampleSize(
+                BitmapFactory.Options options, int maxSize) {
+
+            // Raw height and width of image
+            final int height = options.outHeight;
+            final int width = options.outWidth;
+            int inSampleSize = 1;
+
+//        if (height > reqHeight || width > reqWidth) {
+//
+//            final int halfHeight = height / 2;
+//            final int halfWidth = width / 2;
+//
+//            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+//            // height and width larger than the requested height and width.
+//            while ((halfHeight / inSampleSize) >= reqHeight
+//                    && (halfWidth / inSampleSize) >= reqWidth) {
+//                inSampleSize *= 2;
+//            }
+//        }
+
+            if (Math.max(width, height) > maxSize) {
+                if (width > height) {
+                    float scale = ((float) 800) / width;
+                    inSampleSize = (int) (1 / scale);
+//                width = 800;
+//                height *= scale;
+                } else {
+                    float scale = ((float) 800) / height;
+//                height = 800;
+//                width *= scale;
+                    inSampleSize = (int) (1 / scale);
+                }
+            }
+
+            return inSampleSize;
+        }
+
+        public static byte[] getBytes(Bitmap bmp) {
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            bmp.compress(Bitmap.CompressFormat.PNG, 90, stream);
+            byte[] byteArray = stream.toByteArray();
+            bmp.recycle();
+
+            try {
+                stream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+            return byteArray;
+        }
+
+        public static byte[] resize(File file, int size) {
+            return getBytes(decodeSampledBitmapFromResource(file, size));
+        }
+
+        public static String encodeTobase64(Bitmap image) {
+            Bitmap immagex = image;
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            immagex.compress(Bitmap.CompressFormat.PNG, 90, baos);
+            byte[] b = baos.toByteArray();
+            String imageEncoded = Base64.encodeToString(b, Base64.DEFAULT);
+            return imageEncoded;
+        }
+
+        public static Bitmap decodeBase64(String input) {
+            byte[] decodedByte = Base64.decode(input, 0);
+            return BitmapFactory.decodeByteArray(decodedByte, 0, decodedByte.length);
+        }
+    }
+
+    private static class Docs {
+        /**
+         * @url http://www.java2s.com/Tutorial/Java/0120__Development/0190__SimpleDateFormat.htm
+         * 6.12.SimpleDateFormat
+        6.12.1.	Get Today's Date
+        6.12.2.	new SimpleDateFormat('hh')
+        6.12.3.	new SimpleDateFormat('H') // The hour (0-23)
+        6.12.4.	new SimpleDateFormat('m'):9 The minutes
+        6.12.5.	new SimpleDateFormat('mm')
+        6.12.6.	new SimpleDateFormat('s'): The seconds
+        6.12.7.	new SimpleDateFormat('ss')
+        6.12.8.	new SimpleDateFormat('a'): The am/pm marker
+        6.12.9.	new SimpleDateFormat('z'): The time zone
+        6.12.10.	new SimpleDateFormat('zzzz')
+        6.12.11.	new SimpleDateFormat('Z')
+        6.12.12.	new SimpleDateFormat('hh:mm:ss a')
+        6.12.13.	new SimpleDateFormat('HH.mm.ss')
+        6.12.14.	new SimpleDateFormat('HH:mm:ss Z')
+        6.12.15.	The day number: SimpleDateFormat('d')
+        6.12.16.	Two digits day number: SimpleDateFormat('dd')
+        6.12.17.	The day in week: SimpleDateFormat('E')
+        6.12.18.	Full day name: SimpleDateFormat('EEEE')
+        6.12.19.	SimpleDateFormat('MM'): number based month value
+        6.12.20.	SimpleDateFormat('MM/dd/yy')
+        6.12.21.	SimpleDateFormat('dd-MMM-yy')
+        6.12.22.	The month: SimpleDateFormat('M')
+        6.12.23.	SimpleDateFormat('E, dd MMM yyyy HH:mm:ss Z')
+        6.12.24.	SimpleDateFormat('yyyy')
+        6.12.25.	Three letter-month value: SimpleDateFormat('MMM')
+        6.12.26.	Full length of month name: SimpleDateFormat('MMMM')
+        6.12.27.	Formatting a Date Using a Custom Format
+        6.12.28.	Formatting date with full day and month name and show time up to milliseconds with AM/PM
+        6.12.29.	Format date in dd/mm/yyyy format
+        6.12.30.	Format date in mm-dd-yyyy hh:mm:ss format
+        6.12.31.	Formatting day of week using SimpleDateFormat
+        6.12.32.	Formatting day of week in EEEE format like Sunday, Monday etc.
+        6.12.33.	Formatting day in d format like 1,2 etc
+        6.12.34.	Formatting day in dd format like 01, 02 etc.
+        6.12.35.	Format hour in h (1-12 in AM/PM) format like 1, 2..12.
+        6.12.36.	Format hour in hh (01-12 in AM/PM) format like 01, 02..12.
+        6.12.37.	Format hour in H (0-23) format like 0, 1...23.
+        6.12.38.	Format hour in HH (00-23) format like 00, 01..23.
+        6.12.39.	Format hour in k (1-24) format like 1, 2..24.
+        6.12.40.	Format hour in kk (01-24) format like 01, 02..24.
+        6.12.41.	Format hour in K (0-11 in AM/PM) format like 0, 1..11.
+        6.12.42.	Format hour in KK (00-11) format like 00, 01,..11.
+        6.12.43.	Formatting minute in m format like 1,2 etc.
+        6.12.44.	Format minutes in mm format like 01, 02 etc.
+        6.12.45.	Format month in M format like 1,2 etc
+        6.12.46.	Format Month in MM format like 01, 02 etc.
+        6.12.47.	Format Month in MMM format like Jan, Feb etc.
+        6.12.48.	Format Month in MMMM format like January, February etc.
+        6.12.49.	Format seconds in s format like 1,2 etc.
+        6.12.50.	Format seconds in ss format like 01, 02 etc.
+        6.12.51.	Format TimeZone in z (General time zone) format like EST.
+        6.12.52.	Format TimeZone in zzzz format Eastern Standard Time.
+        6.12.53.	Format TimeZone in Z (RFC 822) format like -8000.
+        6.12.54.	Format year in yy format like 07, 08 etc
+        6.12.55.	Format year in yyyy format like 2007, 2008 etc.
+        6.12.56.	Parsing custom formatted date string into Date object using SimpleDateFormat
+        6.12.57.	Date Formatting and Localization
+        6.12.58.	Add AM PM to time using SimpleDateFormat
+        6.12.59.	Check if a String is a valid date
+         */
     }
 }

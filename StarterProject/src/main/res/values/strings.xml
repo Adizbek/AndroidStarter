@@ -1,4 +1,13 @@
 <resources>
     <string name="app_name">StarterProject</string>
     <string name="upload">Загрузка на сервер</string>
+    <string name="currency_sum">%s сум</string>
+    <string name="ok">Ok</string>
+    <string name="dialog_message_title">Сообщение</string>
+    <string name="date_just_now">только что</string>
+    <string name="date_n_minute_ago">%d минут назад</string>
+    <string name="date_n_hour_ago">%d час назад</string>
+    <string name="date_yesterday_at">вчера в %s</string>
+    <string name="online">Сейчас в сети</string>
+    <string name="was_online">Был в сети %s</string>
 </resources>

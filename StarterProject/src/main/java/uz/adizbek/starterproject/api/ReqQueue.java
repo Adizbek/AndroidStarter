@@ -54,7 +54,8 @@ public class ReqQueue {
                 Object obj = response.body();
 
                 // TODO handle null
-                listener.onReqSuccess(id, obj, response);
+                if (listener != null)
+                    listener.onReqSuccess(id, obj, response);
             }
 
             @Override
@@ -104,5 +105,28 @@ public class ReqQueue {
         t.finished = false;
 
         runRequest(id, t, reqListener);
+    }
+
+    public void replace(int id, Call call) {
+        BaseRequest req = requests.get(id);
+
+        if (req != null) {
+            req.getRequest();
+            ReqQueue.cancel(req.getRequest());
+
+            requests.remove(id);
+        }
+
+        requests.put(id, BaseRequest.make(call));
+    }
+
+    public void rerun(ReqListener listener) {
+        if (requests.size() <= 0) return;
+
+        cancelAll();
+
+        for (Integer id : requests.keySet()) {
+            restart(id, listener);
+        }
     }
 }

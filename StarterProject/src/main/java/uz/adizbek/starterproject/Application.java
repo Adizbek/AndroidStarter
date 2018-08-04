@@ -10,6 +10,7 @@ import com.squareup.picasso.LruCache;
 import com.squareup.picasso.Picasso;
 
 import uz.adizbek.starterproject.helper.Favorite;
+import uz.adizbek.starterproject.helper.Helper;
 import uz.adizbek.starterproject.helper.PrefHelper;
 
 /**
@@ -48,6 +49,7 @@ public class Application extends MultiDexApplication {
         prefs = PrefHelper.init(this);
 
         Favorite.load();
+        Helper.loadSavedLang();
     }
 
     protected void initPicasso() {
