@@ -1,5 +1,7 @@
 # AndroidStarter
-Android starter project.
+Android starter project. 
+
+[![](https://jitpack.io/v/Adizbek/AndroidStarter.svg)](https://jitpack.io/#Adizbek/AndroidStarter)
 
 Used libraries:
  - https://github.com/square/retrofit - API (json)
