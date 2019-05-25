@@ -5,7 +5,6 @@ import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 
 import com.blankj.utilcode.util.Utils;
-import com.google.firebase.FirebaseApp;
 import com.squareup.picasso.LruCache;
 import com.squareup.picasso.Picasso;
 
@@ -35,14 +34,10 @@ public class Application extends MultiDexApplication {
         c = getApplicationContext();
 
         init();
-        initFirebase();
         initRetro();
         initPicasso();
     }
 
-    protected void initFirebase() {
-        FirebaseApp.initializeApp(this);
-    }
 
     protected void init() {
         Utils.init(this);

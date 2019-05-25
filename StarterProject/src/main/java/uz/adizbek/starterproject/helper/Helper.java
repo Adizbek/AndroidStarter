@@ -241,7 +241,7 @@ public class Helper {
                 .setIcon(icon)
                 .setBackgroundColorRes(color)
                 .show();
-
+    }
 
     public static class Dialog {
         public static void showMessage(Activity activity, String text) {

@@ -2,7 +2,6 @@ package uz.adizbek.starterproject.helper;
 
 import uz.adizbek.starterproject.Application;
 
-import com.google.firebase.iid.FirebaseInstanceId;
 
 /**
  * Created by adizbek on 1/15/18.
@@ -38,7 +37,7 @@ public class LoginHelper {
             return Application.prefs.readString(FIREBASE_TOKEN, null);
         }
 
-        return FirebaseInstanceId.getInstance().getToken();
+        return null;
     }
 
     private static void updateRemoteUserToken() {
