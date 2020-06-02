@@ -1,37 +1,24 @@
 package uz.adizbek.starterproject.helper;
 
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.annotation.StringRes;
-import android.support.v7.app.AlertDialog;
+import androidx.annotation.StringRes;
+import androidx.appcompat.app.AlertDialog;
 import android.text.Html;
-import android.app.Activity;
-import android.content.Context;
-import android.app.Activity;
-import android.content.res.TypedArray;
-import android.os.Build;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.text.method.LinkMovementMethod;
 import android.util.Base64;
-import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
 
 import com.tapadoo.alerter.Alerter;
-import com.blankj.utilcode.util.StringUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -39,7 +26,6 @@ import java.io.IOException;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -48,7 +34,6 @@ import java.util.Locale;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import uz.adizbek.starterproject.Application;
-import uz.adizbek.starterproject.R;
 import uz.adizbek.starterproject.R;
 
 /**
