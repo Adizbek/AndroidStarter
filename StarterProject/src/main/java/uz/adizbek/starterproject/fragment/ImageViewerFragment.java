@@ -3,8 +3,10 @@ package uz.adizbek.starterproject.fragment;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +14,8 @@ import android.widget.RelativeLayout;
 
 import com.github.chrisbanes.photoview.PhotoView;
 import com.squareup.picasso.RequestCreator;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,7 +52,7 @@ public class ImageViewerFragment extends BaseFragment {
     public void onFragmentEnter() {
         super.onFragmentEnter();
 
-        if (activity.getSupportActionBar().isShowing()) {
+        if (activity.getSupportActionBar() != null && activity.getSupportActionBar().isShowing()) {
             activity.getSupportActionBar().hide();
             forceHide = true;
         }
@@ -58,13 +62,13 @@ public class ImageViewerFragment extends BaseFragment {
     public void onFragmentExit() {
         super.onFragmentExit();
 
-        if (forceHide && !activity.getSupportActionBar().isShowing()) {
+        if (forceHide && activity.getSupportActionBar() != null && !activity.getSupportActionBar().isShowing()) {
             activity.getSupportActionBar().show();
         }
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NotNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         if (isSingle) {
@@ -97,11 +101,12 @@ public class ImageViewerFragment extends BaseFragment {
                 float dt = 600 / src.getWidth();
                 int height = (int) (src.getHeight() * dt);
 
-                getActivity()
-                        .runOnUiThread(() -> finalCreator.resize(1000, (int) (height * dt))
-                                .onlyScaleDown()
-                                .into((PhotoView) root.findViewById(R.id.photo)));
-            } catch (IOException e) {
+                if (activity != null) {
+                    activity.runOnUiThread(() -> finalCreator.resize(1000, (int) (height * dt))
+                            .onlyScaleDown()
+                            .into((PhotoView) root.findViewById(R.id.photo)));
+                }
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         });
